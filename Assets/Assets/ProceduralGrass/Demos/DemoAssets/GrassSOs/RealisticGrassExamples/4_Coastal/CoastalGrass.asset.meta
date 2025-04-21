@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: edd49e37d2add964c9f9e01ed33fe93a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/RealisticGrassExamples/4_Coastal/CoastalGrass.asset
+  uploadId: 639955

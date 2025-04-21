@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: eb915fc8ae4db2441b32d81b2e606738
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/StylizedGrassExamples/2_Stylized/StylizedGrassBlue.asset
+  uploadId: 639955

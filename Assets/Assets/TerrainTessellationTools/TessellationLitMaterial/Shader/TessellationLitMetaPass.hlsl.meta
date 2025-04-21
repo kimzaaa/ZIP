@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 92a85c9bb7beee54e87fcaf8ba24304d
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/TerrainTessellationTools/TessellationLitMaterial/Shader/TessellationLitMetaPass.hlsl
+  uploadId: 639955

@@ -1,0 +1,185 @@
+#pragma kernel Main
+
+struct GrassOriginPoint {
+    float3 position;
+    uint clumpSecondaryID;
+    float clumpBaseToSecondaryRatio;
+};
+
+struct GrassBlade {
+    float3 position;
+    float height;
+    float width;
+    float rotationAngle;
+    float rotationAngleCurrent;
+    float hash;
+    float tilt;
+    float bend;
+    float windStrength;
+    float3 surfaceNorm;
+    float clumpBaseToSecondaryRatio;
+};
+
+struct WindValues
+{
+    float2 windDirectionSpeed;
+    float windTextureScale;
+    float windIntensity;
+    float windContrast;
+    float minWindStrength;
+    float maxWindStrength;
+};
+
+struct IndirectDrawIndexedArgs {
+
+    uint indexCountPerInstance;
+    uint instanceCount;
+    uint startIndex;
+    uint baseVertexIndex;
+    uint startInstance;
+};
+
+StructuredBuffer<GrassOriginPoint> _GrassOriginPoints;
+RWStructuredBuffer<GrassBlade> _GrassBlades;
+RWStructuredBuffer<GrassBlade> _GrassBladesValid;
+RWStructuredBuffer<WindValues> _WindValues;
+RWStructuredBuffer<IndirectDrawIndexedArgs> _IndirectDrawIndexedArgs;
+
+    
+uint originalIndex = 0;
+
+uint grassOriginPointCount;
+uint grassBladesPerPoint;
+
+float3 cameraPosition;
+
+float frustumTolerance;
+float distanceCulling;
+uint distanceCullingNumber;
+float distanceCullingNone;
+
+float4x4 _CameraToWorldMatrix;
+float4x4 _CameraProjectionMatrix;
+
+Texture2D _WindTexture;
+SamplerState sampler_WindTexture;
+
+float4 _Time;
+
+bool IsInFrustum(float3 position, float4x4 projectionMatrix, float4x4 viewMatrix, float frustumTolerance)
+{
+    float4 clipPos = mul(projectionMatrix, mul(viewMatrix, float4(position, 1.0)));
+    float3 ndc = clipPos.xyz / clipPos.w;
+    if (clipPos.z < 0.0) {
+        return false;
+    }
+    if (ndc.x >= -1.0 - frustumTolerance && ndc.x <= 1.0 + frustumTolerance &&
+        ndc.y >= -1.0 - frustumTolerance && ndc.y <= 1.0 + frustumTolerance &&
+        ndc.z >= -1.0 - frustumTolerance && ndc.z <= 1.0 + frustumTolerance) {
+        return true;
+    }
+
+    return false;
+}
+float BubbleWind(float windStrength, float windIntensity, float windContrast, float minWindStrength, float maxWindStrength)
+{
+    windStrength = saturate(windStrength + windIntensity);
+
+    if (windStrength > 1 - windContrast)
+    {
+        windStrength = 1;
+    }
+    else if (windStrength < windContrast)
+    {
+        windStrength = 0;
+    }
+
+    // Combine the time-dependent and time-independent components
+    return lerp(minWindStrength, maxWindStrength, windStrength);
+}
+float GetWindAt(float x, float z, float2 windDirectionSpeed, float windTextureScale, float windIntensity, float windContrast, float minWindStrength, float maxWindStrength)
+{
+    float elapsedTime = _Time.y;
+
+    // Calculate the scrolled wind direction based on elapsed time and wind speed
+    float2 scrolledWindDirection = -windDirectionSpeed * elapsedTime;
+
+    // Use the grayscale texture for wind if available
+    float u = frac((x / windTextureScale + scrolledWindDirection.x));
+    float v = frac((z / windTextureScale + scrolledWindDirection.y));
+    float2 uv = float2(u,v);
+    float windStrength = _WindTexture.SampleLevel(sampler_WindTexture, uv, 0).x;
+    return BubbleWind(windStrength, windIntensity, windContrast, minWindStrength, maxWindStrength);
+}
+float LerpAngle(float angle1, float angle2, float t)
+{
+    angle1 = fmod(angle1, 360.0);
+    angle2 = fmod(angle2, 360.0);
+    float angleDiff = abs(angle1 - angle2);
+    if (angleDiff > 180.0)
+    {
+        if (angle1 < angle2)
+            angle1 += 360.0;
+        else
+            angle2 += 360.0;
+    }
+    return lerp(angle1, angle2, t);
+}
+
+[numthreads(128,1,1)]
+void Main (uint id : SV_DispatchThreadID)
+{
+    if (id >= grassOriginPointCount) // No more grass to process
+    {
+        return;
+    }
+
+    GrassOriginPoint originPoint = _GrassOriginPoints[id.x];
+    float3 originPosition = originPoint.position;
+
+    if (!IsInFrustum(originPosition, _CameraProjectionMatrix, _CameraToWorldMatrix, frustumTolerance))
+    {
+        return;
+    }
+
+    float distance = length(cameraPosition - originPosition);
+    if (distance > distanceCullingNone) // Too far
+    {
+        return;
+    }
+    if (distance > distanceCulling && id.x % distanceCullingNumber != 0){
+        return;
+    }
+    // Blade Instance is Rendered
+    InterlockedAdd(_IndirectDrawIndexedArgs[0].instanceCount, 1, originalIndex);
+    for(uint i = 0; i < grassBladesPerPoint; i++){
+        _GrassBladesValid[originalIndex*grassBladesPerPoint+i] = _GrassBlades[id.x*grassBladesPerPoint + i];
+        _GrassBladesValid[originalIndex*grassBladesPerPoint+i].windStrength = 0;
+        if(length(_WindValues[0].windDirectionSpeed)>0){ // Wont execute in edit mode
+            float2 windDirectionSpeed = _WindValues[0].windDirectionSpeed;
+            float windTextureScale = _WindValues[0].windTextureScale;
+            float windIntensity = _WindValues[0].windIntensity;
+            float windContrast = _WindValues[0].windContrast;
+            float minWindStrength = _WindValues[0].minWindStrength;
+            float maxWindStrength = _WindValues[0].maxWindStrength;
+
+            float windStrength = GetWindAt(
+                originPosition.x,
+                originPosition.z,
+                windDirectionSpeed,
+                windTextureScale,
+                windIntensity,
+                windContrast,
+                minWindStrength,
+                maxWindStrength
+            );
+            _GrassBladesValid[originalIndex * grassBladesPerPoint + i].windStrength = windStrength;
+            float baseRotation = _GrassBladesValid[originalIndex*grassBladesPerPoint+i].rotationAngle;
+            float2 windDirectionSpeedNormalized = normalize(windDirectionSpeed);
+            float windAngleRadians = atan2(-windDirectionSpeedNormalized.y, windDirectionSpeedNormalized.x);
+            float windAngle = degrees(windAngleRadians);
+            float currentRotation = LerpAngle(baseRotation,windAngle, windStrength);
+            _GrassBladesValid[originalIndex*grassBladesPerPoint+i].rotationAngleCurrent = currentRotation;
+        }
+    }
+}

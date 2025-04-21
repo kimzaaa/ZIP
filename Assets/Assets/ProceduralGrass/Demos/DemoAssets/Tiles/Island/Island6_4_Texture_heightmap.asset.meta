@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b79b7bcbd7aea834e87131bf6d44f67c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/Tiles/Island/Island6_4_Texture_heightmap.asset
+  uploadId: 639955

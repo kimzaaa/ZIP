@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ed7b6965c52cc5945ad261de05f29de9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/LowPolyGrassExamples/LowPolyGrass.asset
+  uploadId: 639955

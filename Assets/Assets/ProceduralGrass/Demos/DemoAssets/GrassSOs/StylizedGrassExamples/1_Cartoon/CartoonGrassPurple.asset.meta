@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d241fc8761c24e147a9dc0bcd5c3329d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/StylizedGrassExamples/1_Cartoon/CartoonGrassPurple.asset
+  uploadId: 639955

@@ -4,7 +4,11 @@
 PhysicsManager:
   m_ObjectHideFlags: 0
   serializedVersion: 18
+<<<<<<< Updated upstream
   m_Gravity: {x: 0, y: -15, z: 0}
+=======
+  m_Gravity: {x: 0, y: -9.81, z: 0}
+>>>>>>> Stashed changes
   m_DefaultMaterial: {fileID: 0}
   m_BounceThreshold: 2
   m_DefaultMaxDepenetrationVelocity: 10
@@ -17,7 +21,11 @@ PhysicsManager:
   m_EnableAdaptiveForce: 0
   m_ClothInterCollisionDistance: 0.1
   m_ClothInterCollisionStiffness: 0.2
+<<<<<<< Updated upstream
   m_LayerCollisionMatrix: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+=======
+  m_LayerCollisionMatrix: fffefffffffefffffffefffffffefffffffefffffffefffffffefffffffeffff00000000fffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffeffff
+>>>>>>> Stashed changes
   m_SimulationMode: 0
   m_AutoSyncTransforms: 0
   m_ReuseCollisionCallbacks: 1
