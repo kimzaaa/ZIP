@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: db7dabd3d1febe84a88b141f7a16ca64
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/TerrainTessellationTools/Demos/_MeshGenerator/MeshGenerator.unity
+  uploadId: 639955

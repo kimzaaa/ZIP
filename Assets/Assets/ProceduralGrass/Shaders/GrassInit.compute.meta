@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7bdf4e1b6dd76ca4cb8f7af17c3caea1
+ComputeShaderImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Shaders/GrassInit.compute
+  uploadId: 639955

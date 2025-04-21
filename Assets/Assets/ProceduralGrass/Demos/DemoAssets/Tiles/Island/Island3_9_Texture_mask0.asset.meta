@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f0ec3b4f97881044598e6527d8956514
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/Tiles/Island/Island3_9_Texture_mask0.asset
+  uploadId: 639955

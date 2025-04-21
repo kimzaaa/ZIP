@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ef66409ac747cee4697246622020a0fe
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/StylizedGrassExamples/3_Ink/InkGrassSettings.asset
+  uploadId: 639955

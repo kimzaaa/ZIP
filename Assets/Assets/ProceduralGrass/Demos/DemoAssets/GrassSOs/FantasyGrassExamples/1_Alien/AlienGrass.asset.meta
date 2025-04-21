@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dcf49104c81fc174383a40770917aaf9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/FantasyGrassExamples/1_Alien/AlienGrass.asset
+  uploadId: 639955

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7026e95a1d9d55143a81859ef179138a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/TerrainTessellationTools/Demos/Materials/Tangents.mat
+  uploadId: 639955

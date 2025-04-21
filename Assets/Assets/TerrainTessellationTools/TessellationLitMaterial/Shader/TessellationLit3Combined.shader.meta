@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 3b85b1a4c07da9d4cac5267b131024f8
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/TerrainTessellationTools/TessellationLitMaterial/Shader/TessellationLit3Combined.shader
+  uploadId: 639955

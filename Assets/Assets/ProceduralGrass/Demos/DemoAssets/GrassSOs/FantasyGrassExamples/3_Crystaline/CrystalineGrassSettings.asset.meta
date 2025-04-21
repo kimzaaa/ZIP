@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a70a8c9ab16c5f4469406cc7afe86e07
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/FantasyGrassExamples/3_Crystaline/CrystalineGrassSettings.asset
+  uploadId: 639955

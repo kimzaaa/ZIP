@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d91cb5e6870c22b488fa412d594683d9
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/TerrainTessellationTools/Demos/_TerrainTilesSlicer/TerrainTile.prefab
+  uploadId: 639955

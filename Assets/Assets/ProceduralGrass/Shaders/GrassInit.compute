@@ -1,0 +1,177 @@
+#pragma kernel Main
+
+struct GrassOriginPoint {
+    float3 position;
+    uint clumpSecondaryID;
+    float clumpBaseToSecondaryRatio;
+};
+
+struct ClumpPoint {
+    float3 position;
+    float moveToCenter;
+    float pointInSameDirection;
+    float pointInSameDirectionAngle;
+    float pointInSameDirectionRelativeCenter;
+    float pointInSameDirectionAngleRelativeCenter;
+    float height;
+    float heightRandom;
+    float width;
+    float widthRandom;
+    float tilt;
+    float tiltRandom;
+    float bend;
+    float bendRandom;
+};
+
+struct GrassBlade {
+    float3 position;
+    float height;
+    float width;
+    float rotationAngle;
+    float rotationAngleCurrent;
+    float hash;
+    float tilt;
+    float bend;
+    float windStrength;
+    float3 surfaceNorm;
+    float clumpBaseToSecondaryRatio;
+};
+
+StructuredBuffer<GrassOriginPoint> _GrassOriginPoints;
+RWStructuredBuffer<GrassBlade> _GrassBlades;
+StructuredBuffer<ClumpPoint> _ClumpPoints;
+
+uint grassOriginPointCount;
+uint grassBladesPerPoint;
+
+float bladeInstanceRadius;
+
+Texture2D _HeightMap;
+SamplerState sampler_HeightMap;
+float _TerrainRotation;
+float _TerrainForce;
+float _MinX;
+float _MinZ;
+float _MaxX;
+float _MaxZ;
+
+float2 RotateUV(float2 uv, float angleDegrees) {
+    float angleRadians = radians(angleDegrees);
+    float cosA = cos(angleRadians);
+    float sinA = sin(angleRadians);
+    uv -= 0.5;
+    return float2(uv.x * cosA - uv.y * sinA, uv.x * sinA + uv.y * cosA) + 0.5;
+}
+
+float3 GetHeightAtWorldPosition(float2 WPosXZ){
+    float2 minWorldPos = float2(_MinX, _MinZ);
+    float2 maxWorldPos = float2(_MaxX, _MaxZ);
+    float2 birdViewUV = (WPosXZ - minWorldPos) / (maxWorldPos - minWorldPos);
+    birdViewUV = RotateUV(birdViewUV, _TerrainRotation);
+    birdViewUV = saturate(birdViewUV);
+    float height = _HeightMap.SampleLevel(sampler_HeightMap, birdViewUV, 0).x;
+    return float3(WPosXZ.x, height * _TerrainForce, WPosXZ.y);
+}
+float hash0To1(float3 co)
+{
+	return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
+}
+float LerpAngle(float angle1, float angle2, float t)
+{
+    angle1 = fmod(angle1, 360.0);
+    angle2 = fmod(angle2, 360.0);
+    float angleDiff = abs(angle1 - angle2);
+    if (angleDiff > 180.0)
+    {
+        if (angle1 < angle2)
+            angle1 += 360.0;
+        else
+            angle2 += 360.0;
+    }
+    return lerp(angle1, angle2, t);
+}
+
+[numthreads(128,1,1)]
+void Main (uint id : SV_DispatchThreadID)
+{
+    if (id >= grassOriginPointCount) // No more grass to process
+    {
+        return;
+    }
+
+    GrassOriginPoint originPoint = _GrassOriginPoints[id.x];
+    float3 originPosition = originPoint.position;
+
+    float2 center = originPosition.xz;
+    float circumference = 2 * 3.14159265359 * bladeInstanceRadius;
+    float2 finalPosition;
+
+    ClumpPoint clumpBase = _ClumpPoints[0];
+    ClumpPoint clumpSecondary = _ClumpPoints[originPoint.clumpSecondaryID];
+
+    float startHeight = lerp(clumpBase.height, clumpSecondary.height, originPoint.clumpBaseToSecondaryRatio);
+    float randomHeight = lerp(clumpBase.heightRandom, clumpSecondary.heightRandom, originPoint.clumpBaseToSecondaryRatio);
+    float startWidth = lerp(clumpBase.width, clumpSecondary.width, originPoint.clumpBaseToSecondaryRatio);
+    float randomWidth = lerp(clumpBase.widthRandom, clumpSecondary.widthRandom, originPoint.clumpBaseToSecondaryRatio);
+    float startTilt = lerp(clumpBase.tilt, clumpSecondary.tilt, originPoint.clumpBaseToSecondaryRatio);
+    float randomTilt = lerp(clumpBase.tiltRandom, clumpSecondary.tiltRandom, originPoint.clumpBaseToSecondaryRatio);
+    float startBend = lerp(clumpBase.bend, clumpSecondary.bend, originPoint.clumpBaseToSecondaryRatio);
+    float randomBend = lerp(clumpBase.bendRandom, clumpSecondary.bendRandom, originPoint.clumpBaseToSecondaryRatio);
+    float clumpAngleRatio = lerp (0,clumpSecondary.pointInSameDirection, originPoint.clumpBaseToSecondaryRatio);
+    float clumpAngleRelativeCenterRatio = lerp (0,clumpSecondary.pointInSameDirectionRelativeCenter, originPoint.clumpBaseToSecondaryRatio);
+
+    for (uint i; i < grassBladesPerPoint; i++){
+        GrassBlade blade;
+        blade.hash = hash0To1(float3(originPosition.z, i, originPosition.x));
+        float angleHash = hash0To1(float3(originPosition.x, id.x, originPosition.z));
+
+        if (grassBladesPerPoint == 1){
+            finalPosition = originPosition.xz;
+            blade.rotationAngle = lerp(0.0f,360.0f, blade.hash);
+        }
+        else{
+            // Calculate the angle for the current point
+            float randomAngle = radians(360 * angleHash);
+            float angleMin = randomAngle + (float(i) / float(grassBladesPerPoint)) * 2 * 3.14159265359;
+            float angleMax = randomAngle + (float(i+1) / float(grassBladesPerPoint)) * 2 * 3.14159265359;
+            float angle = LerpAngle(angleMin, angleMax, blade.hash);
+            // Calculate the position of the point based on angle
+            float x = center.x + bladeInstanceRadius * cos(angle);
+            float y = center.y - bladeInstanceRadius * sin(angle);
+
+            float bladeRadiusMin = 0.0f; // Minimum radius value, Lower it to make it possible to be nearer the center.
+            float bladeRadiusMax = 1.0f;
+
+            finalPosition = lerp(originPosition.xz, float2(x, y), lerp(bladeRadiusMin, bladeRadiusMax, blade.hash)); // bring it towards center
+            blade.rotationAngle = degrees(angle);
+        }
+        finalPosition = lerp(finalPosition, clumpSecondary.position.xz , clumpSecondary.moveToCenter);
+        float2 directionToCenter = finalPosition - clumpSecondary.position.xz;
+        float angleToCenter = atan2(directionToCenter.y, directionToCenter.x);
+        blade.rotationAngle = LerpAngle(blade.rotationAngle, clumpSecondary.pointInSameDirectionAngle, clumpAngleRatio);
+        blade.rotationAngle = LerpAngle(blade.rotationAngle, degrees(-angleToCenter) - clumpSecondary.pointInSameDirectionAngleRelativeCenter, clumpAngleRelativeCenterRatio);
+        float randomAngleRatio = blade.hash * 2.0 - 1.0;
+        blade.rotationAngle = fmod(blade.rotationAngle, 360.0);
+        blade.rotationAngleCurrent = blade.rotationAngle;
+        blade.position = GetHeightAtWorldPosition(finalPosition);
+        blade.height = startHeight + randomHeight * blade.hash;
+        blade.width = startWidth + randomWidth * blade.hash;
+        blade.tilt = startTilt + randomTilt * blade.hash;
+        blade.bend = startBend + randomBend * blade.hash;
+        blade.windStrength = 0; // this gets calculated in update.
+
+        float2 bitangent = float2(1, 0);
+        float2 tangent   = float2(0, 1);
+
+        float3 vertexBitangent = GetHeightAtWorldPosition(finalPosition + bitangent*0.01);
+        float3 vertexTangent = GetHeightAtWorldPosition(finalPosition + tangent*0.01);
+
+        float3 newBitangent = (vertexBitangent-blade.position ).xyz;
+        float3 newTangent = (vertexTangent-blade.position).xyz;
+
+        float3 norm = normalize(cross(newTangent,newBitangent));
+        blade.surfaceNorm = norm; // TODO calculate normals via texture
+        blade.clumpBaseToSecondaryRatio = originPoint.clumpBaseToSecondaryRatio; // TODO calculate normals via texture
+        _GrassBlades[id.x * grassBladesPerPoint + i] = blade;
+    }
+}

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 790d933862510754888393985068fc37, type: 3}
+  m_Name: CartoonGrassYellow
+  m_EditorClassIdentifier: 
+  proceduralMaterial: {fileID: 2100000, guid: 7549dbad11838fb41bd832e02569e0a1, type: 2}
+  computeShaderInitArgs: {fileID: 7200000, guid: b44bb715e6c6a0a4cb73ee3421c78535,
+    type: 3}
+  computeShaderInit: {fileID: 7200000, guid: 7bdf4e1b6dd76ca4cb8f7af17c3caea1, type: 3}
+  computeShaderUpdate: {fileID: 7200000, guid: aadbf57ddda747b478018a912fd2af7d, type: 3}
+  proceduralRendererPrefab: {fileID: 0}
+  proceduralSettings: {fileID: 11400000, guid: a6d103592c2b8ef44882db3125bdadb7, type: 2}
+  spacingAtMaxDensity: 0.2
+  jitterAmount: 0.5
+  terrainNormalCopy: 1
+  isProcedural: 1
+  decorationPrefab: {fileID: 0}

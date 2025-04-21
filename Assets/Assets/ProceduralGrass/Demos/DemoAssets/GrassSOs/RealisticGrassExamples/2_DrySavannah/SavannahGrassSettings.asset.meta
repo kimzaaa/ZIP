@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 748ccc44918e17445bfec7fb68f3625a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/RealisticGrassExamples/2_DrySavannah/SavannahGrassSettings.asset
+  uploadId: 639955

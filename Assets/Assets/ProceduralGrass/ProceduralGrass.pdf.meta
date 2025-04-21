@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: cff4b8f3b88df4a4684d28880bb6e274
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/ProceduralGrass.pdf
+  uploadId: 639955

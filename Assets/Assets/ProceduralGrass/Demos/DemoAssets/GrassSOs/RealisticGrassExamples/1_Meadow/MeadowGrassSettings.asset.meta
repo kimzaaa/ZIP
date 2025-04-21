@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 96f3be74011252b49af1142cc6c9f827
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Demos/DemoAssets/GrassSOs/RealisticGrassExamples/1_Meadow/MeadowGrassSettings.asset
+  uploadId: 639955

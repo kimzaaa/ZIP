@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0488ebe0701ea664dbed37fc1b9b0b78
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/TerrainTessellationTools/TessellationLitMaterial/Shader/TessellationVertexDisplacement.cginc
+  uploadId: 639955

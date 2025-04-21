@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 041b3c12ea91cd74582ef8dcc4ca66af
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/TerrainTessellationTools/LODTessellation/Shaders/Wireframe.shader
+  uploadId: 639955

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 8003ceb816ae03e489f33b2c143cc533
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 274414
+  packageName: Procedural Grass GPU Shader & Terrain Tessellation Tools
+  packageVersion: 1.0
+  assetPath: Assets/ProceduralGrass/Scripts/SOs/RenderSettingsSO.cs
+  uploadId: 639955
