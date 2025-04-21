@@ -51,6 +51,12 @@ public class PlayerController : MonoBehaviour
     public float speedPowerUpMultiplier = 1.5f;
     public float jumpPowerUpMultiplier = 1.5f;
 
+    [Header("Smoothing Parameters")]
+    public float movementSmoothing = 0.05f;
+    public float velocityLerpSpeed = 20f;
+    public float inertiaFactor = 0.95f;
+    public float frictionlessDecelerationMultiplier = 0.2f;
+
     private Vector3 moveDirection = Vector3.zero;
     private float currentSpeed = 0f;
     private Vector3 slideDirection = Vector3.zero;
@@ -65,6 +71,9 @@ public class PlayerController : MonoBehaviour
     private float targetColliderHeight;
     private Vector3 targetColliderCenter;
     private float slopeAngle = 0f;
+    private Vector3 smoothedMoveDirection = Vector3.zero;
+    private Vector3 currentVelocity = Vector3.zero;
+    private Vector3 lastFrameVelocity = Vector3.zero;
 
     private bool hasSpeedPowerUp = false;
     private bool hasJumpPowerUp = false;
@@ -86,6 +95,9 @@ public class PlayerController : MonoBehaviour
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
+        rb.linearDamping = 0f;
+        rb.angularDamping = 0f;
 
         originalColliderHeight = capsuleCollider.height;
         originalColliderCenter = capsuleCollider.center;
@@ -114,11 +126,15 @@ public class PlayerController : MonoBehaviour
         HandleInput();
         UpdateColliderShape();
         UpdateAnimator();
+
+        lastFrameVelocity = rb.linearVelocity;
+
+        HandleMovement();
     }
 
     void FixedUpdate()
     {
-        HandleMovement();
+        
     }
 
     void CheckGrounded()
@@ -153,12 +169,10 @@ public class PlayerController : MonoBehaviour
 
         slopeAngle = Vector3.Angle(groundNormal, Vector3.up);
 
-        // Check for slopes ahead
         RaycastHit hit;
         if (Physics.Raycast(transform.position + Vector3.up * 0.5f, moveDirection, out hit, slopeRayLength, groundLayers))
         {
             float forwardSlopeAngle = Vector3.Angle(hit.normal, Vector3.up);
-            // Blend current slope with upcoming slope for smoother transitions
             slopeAngle = Mathf.Lerp(slopeAngle, forwardSlopeAngle, Time.deltaTime * slopeTransitionSmoothing);
         }
     }
@@ -171,7 +185,6 @@ public class PlayerController : MonoBehaviour
 
     void HandleInput()
     {
-        // Use Camera.main instead of custom camera
         Vector3 forward = Camera.main.transform.forward;
         Vector3 right = Camera.main.transform.right;
         forward.y = 0;
@@ -185,6 +198,8 @@ public class PlayerController : MonoBehaviour
         {
             targetDirection.Normalize();
 
+            smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, targetDirection, Time.deltaTime * 10f);
+
             float targetSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
 
             if (hasSpeedPowerUp)
@@ -194,19 +209,17 @@ public class PlayerController : MonoBehaviour
 
             float accelRate = isGrounded ? acceleration : acceleration * airControl;
 
-            // Adjust speed for slopes
             if (IsOnSlope())
             {
                 float slopeFactor = 1f - (slopeAngle / slopeLimit) * slopeInfluence;
 
-                // Check if moving uphill or downhill
-                float directionDot = Vector3.Dot(targetDirection, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
+                float directionDot = Vector3.Dot(smoothedMoveDirection, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
 
-                if (directionDot > 0.1f) // Moving downhill
+                if (directionDot > 0.1f)
                 {
                     slopeFactor *= downhillMultiplier;
                 }
-                else if (directionDot < -0.1f) // Moving uphill
+                else if (directionDot < -0.1f)
                 {
                     slopeFactor *= uphillMultiplier;
                 }
@@ -216,14 +229,18 @@ public class PlayerController : MonoBehaviour
 
             currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * accelRate);
 
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+            Quaternion targetRotation = Quaternion.LookRotation(smoothedMoveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
-            moveDirection = targetDirection;
+            moveDirection = smoothedMoveDirection;
         }
         else if (!isSliding)
         {
-            currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.deltaTime * deceleration);
+            if (targetDirection.magnitude < 0.1f)
+            {
+                currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.deltaTime * deceleration * frictionlessDecelerationMultiplier);
+                smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, Vector3.zero, Time.deltaTime * deceleration * frictionlessDecelerationMultiplier);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -267,9 +284,11 @@ public class PlayerController : MonoBehaviour
             }
 
             Vector3 verticalVel = new Vector3(0, rb.linearVelocity.y, 0);
-            rb.linearVelocity = slideVelocity + verticalVel;
 
-            slideTimeRemaining -= Time.deltaTime;
+            Vector3 targetVelocity = slideVelocity + verticalVel;
+            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 10f);
+
+            slideTimeRemaining -= Time.fixedDeltaTime;
 
             if (slideTimeRemaining <= 0 || slideDirection.magnitude < 1.0f)
             {
@@ -283,12 +302,7 @@ public class PlayerController : MonoBehaviour
             if (IsOnSlope())
             {
                 Vector3 slopeMovement = Vector3.ProjectOnPlane(targetVelocity, groundNormal);
-                Vector3 slopeCorrectionVelocity = slopeMovement - targetVelocity;
                 targetVelocity = slopeMovement;
-
-                // Gradually adjust to the slope-projected velocity for smoother transitions
-                Vector3 currentVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-                targetVelocity = Vector3.Lerp(currentVelocity, targetVelocity, Time.deltaTime * slopeTransitionSmoothing);
 
                 float downhillDot = Vector3.Dot(targetVelocity.normalized, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
                 if (downhillDot > 0.1f)
@@ -304,24 +318,75 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            targetVelocity.y = rb.linearVelocity.y;
+            if (moveDirection.magnitude < 0.1f && isGrounded)
+            {
+                Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
-            Vector3 velocityChange = targetVelocity - rb.linearVelocity;
-            velocityChange.y = 0;
+                if (currentHorizontalVelocity.magnitude > 0.1f)
+                {
+                    targetVelocity = currentHorizontalVelocity * inertiaFactor;
+                }
+            }
+
+            targetVelocity.y = rb.linearVelocity.y;
 
             if (isGrounded)
             {
-                rb.AddForce(velocityChange, ForceMode.VelocityChange);
+                if (moveDirection.magnitude > 0.1f)
+                {
+                    Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                    Vector3 targetHorizontalVelocity = new Vector3(targetVelocity.x, 0, targetVelocity.z);
+
+                    Vector3 newHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, targetHorizontalVelocity, Time.fixedDeltaTime * velocityLerpSpeed);
+
+                    rb.linearVelocity = new Vector3(newHorizontalVelocity.x, rb.linearVelocity.y, newHorizontalVelocity.z);
+                }
+                else
+                {
+                    Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+
+                    if (currentHorizontalVelocity.magnitude > 0.1f)
+                    {
+                        Vector3 deceleratedVelocity = currentHorizontalVelocity * (1.0f - (Time.fixedDeltaTime * frictionlessDecelerationMultiplier));
+                        rb.linearVelocity = new Vector3(deceleratedVelocity.x, rb.linearVelocity.y, deceleratedVelocity.z);
+                    }
+                }
             }
             else
             {
-                rb.AddForce(velocityChange * airControl, ForceMode.VelocityChange);
-            }
+                if (moveDirection.magnitude > 0.1f)
+                {
+                    Vector3 airVelocity = new Vector3(
+                        Mathf.Lerp(rb.linearVelocity.x, targetVelocity.x, Time.fixedDeltaTime * airControl * velocityLerpSpeed),
+                        rb.linearVelocity.y,
+                        Mathf.Lerp(rb.linearVelocity.z, targetVelocity.z, Time.fixedDeltaTime * airControl * velocityLerpSpeed)
+                    );
 
-            if (!isGrounded)
-            {
-                rb.AddForce(Physics.gravity, ForceMode.Acceleration);
+                    rb.linearVelocity = airVelocity;
+                }
+                else
+                {
+
+                }
             }
+        }
+
+        CancelFriction();
+    }
+
+    void CancelFriction()
+    {
+
+        if (!isGrounded || isSliding || moveDirection.magnitude > 0.1f)
+            return;
+
+        Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        Vector3 lastHorizontalVelocity = new Vector3(lastFrameVelocity.x, 0, lastFrameVelocity.z);
+
+        if (horizontalVelocity.magnitude < lastHorizontalVelocity.magnitude * inertiaFactor)
+        {
+            Vector3 restoredVelocity = lastHorizontalVelocity * inertiaFactor;
+            rb.linearVelocity = new Vector3(restoredVelocity.x, rb.linearVelocity.y, restoredVelocity.z);
         }
     }
 
@@ -333,15 +398,16 @@ public class PlayerController : MonoBehaviour
         if (IsOnSlope())
         {
             Vector3 slopeJumpDirection = Vector3.Lerp(Vector3.up, groundNormal, 0.5f).normalized;
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-            rb.AddForce(slopeJumpDirection * finalJumpForce, ForceMode.Impulse);
+
+            Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+
+            rb.linearVelocity = horizontalVelocity + (slopeJumpDirection * finalJumpForce);
         }
         else
         {
-            Vector3 velocity = rb.linearVelocity;
-            velocity.y = 0;
-            rb.linearVelocity = velocity;
-            rb.AddForce(Vector3.up * finalJumpForce, ForceMode.Impulse);
+            Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+
+            rb.linearVelocity = horizontalVelocity + (Vector3.up * finalJumpForce);
         }
 
         remainingJumps--;
@@ -355,15 +421,25 @@ public class PlayerController : MonoBehaviour
     void StartSlide()
     {
         isSliding = true;
-        slideDirection = transform.forward * slideSpeed;
+
+        Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        Vector3 slideBoost = transform.forward * slideSpeed;
+
+        if (currentHorizontalVelocity.magnitude > 0.1f)
+        {
+            slideDirection = Vector3.Lerp(currentHorizontalVelocity.normalized, transform.forward, 0.6f) * slideSpeed;
+        }
+        else
+        {
+            slideDirection = slideBoost;
+        }
+
         slideTimeRemaining = 1.0f;
 
         targetColliderHeight = slideHeight;
         targetColliderCenter = new Vector3(0, slideHeight / 2, 0);
 
-        Vector3 currentVel = rb.linearVelocity;
-        currentVel.y = 0;
-        rb.linearVelocity = slideDirection + new Vector3(0, rb.linearVelocity.y, 0);
+        rb.linearVelocity = new Vector3(slideDirection.x, rb.linearVelocity.y, slideDirection.z);
 
         if (animator != null)
         {
@@ -378,6 +454,17 @@ public class PlayerController : MonoBehaviour
 
         targetColliderHeight = originalColliderHeight;
         targetColliderCenter = originalColliderCenter;
+
+        Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        if (currentHorizontalVelocity.magnitude > walkSpeed)
+        {
+            Vector3 normalizedDirection = currentHorizontalVelocity.normalized;
+            rb.linearVelocity = new Vector3(
+                normalizedDirection.x * walkSpeed,
+                rb.linearVelocity.y,
+                normalizedDirection.z * walkSpeed
+            );
+        }
 
         if (animator != null)
         {
@@ -435,13 +522,9 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator SpeedPowerUpRoutine()
     {
-        Debug.Log("Speed PowerUp Activated!");
-
         hasSpeedPowerUp = true;
         yield return new WaitForSeconds(powerUpDuration);
         hasSpeedPowerUp = false;
-
-        Debug.Log("Speed PowerUp Ended");
     }
 
     void ActivateJumpPowerUp()
@@ -456,14 +539,10 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator JumpPowerUpRoutine()
     {
-        Debug.Log("Jump PowerUp Activated!");
-
         hasJumpPowerUp = true;
         remainingJumps = maxJumps;
         yield return new WaitForSeconds(powerUpDuration);
         hasJumpPowerUp = false;
-
-        Debug.Log("Jump PowerUp Ended");
     }
 
     void OnTriggerEnter(Collider other)
