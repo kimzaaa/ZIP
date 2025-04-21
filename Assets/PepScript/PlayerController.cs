@@ -7,10 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
     private CapsuleCollider capsuleCollider;
-    private Transform cameraTransform;
     private Animator animator;
-    private Vector3 lastCameraPosition;
-    private Quaternion lastCameraRotation;
 
     [Header("Basic Movement")]
     public float walkSpeed = 6.0f;
@@ -43,16 +40,6 @@ public class PlayerController : MonoBehaviour
     public float maxSlopeAngle = 45f;
     public float slideTransitionSpeed = 10f;
 
-    [Header("Camera Parameters")]
-    public float cameraDistance = 5.0f;
-    public float cameraHeight = 2.0f;
-    public float cameraSmoothness = 5.0f;
-    public float cameraRotationSmoothness = 10f;
-    public Vector2 cameraSensitivity = new Vector2(3.0f, 2.0f);
-    public float cameraMinVerticalAngle = -30.0f;
-    public float cameraMaxVerticalAngle = 60.0f;
-    public float cameraCollisionOffset = 0.2f;
-
     [Header("Ground Detection")]
     public LayerMask groundLayers;
     public float groundCheckDistance = 0.2f;
@@ -78,11 +65,6 @@ public class PlayerController : MonoBehaviour
     private float targetColliderHeight;
     private Vector3 targetColliderCenter;
     private float slopeAngle = 0f;
-
-    private float cameraVerticalAngle = 0f;
-    private Vector3 cameraVelocity = Vector3.zero;
-    private Vector3 targetCameraPosition;
-    private Quaternion targetCameraRotation;
 
     private bool hasSpeedPowerUp = false;
     private bool hasJumpPowerUp = false;
@@ -110,16 +92,6 @@ public class PlayerController : MonoBehaviour
         targetColliderHeight = originalColliderHeight;
         targetColliderCenter = originalColliderCenter;
 
-        GameObject cameraObj = new GameObject("PlayerCamera");
-        cameraObj.AddComponent<Camera>();
-        cameraTransform = cameraObj.transform;
-        targetCameraPosition = transform.position + Vector3.up * cameraHeight - transform.forward * cameraDistance;
-        targetCameraRotation = Quaternion.LookRotation(transform.position + Vector3.up * cameraHeight - targetCameraPosition);
-        cameraTransform.position = targetCameraPosition;
-        cameraTransform.rotation = targetCameraRotation;
-        lastCameraPosition = cameraTransform.position;
-        lastCameraRotation = cameraTransform.rotation;
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -139,7 +111,6 @@ public class PlayerController : MonoBehaviour
     {
         CheckGrounded();
         DetectSlope();
-        HandleCamera();
         HandleInput();
         UpdateColliderShape();
         UpdateAnimator();
@@ -148,11 +119,6 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         HandleMovement();
-    }
-
-    void LateUpdate()
-    {
-        PositionCamera();
     }
 
     void CheckGrounded()
@@ -205,8 +171,9 @@ public class PlayerController : MonoBehaviour
 
     void HandleInput()
     {
-        Vector3 forward = cameraTransform.forward;
-        Vector3 right = cameraTransform.right;
+        // Use Camera.main instead of custom camera
+        Vector3 forward = Camera.main.transform.forward;
+        Vector3 right = Camera.main.transform.right;
         forward.y = 0;
         right.y = 0;
         forward.Normalize();
@@ -425,56 +392,6 @@ public class PlayerController : MonoBehaviour
             capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetColliderHeight, Time.deltaTime * slideTransitionSpeed);
             capsuleCollider.center = Vector3.Lerp(capsuleCollider.center, targetColliderCenter, Time.deltaTime * slideTransitionSpeed);
         }
-    }
-
-    void HandleCamera()
-    {
-        float mouseX = Input.GetAxis("Mouse X") * cameraSensitivity.x;
-        float mouseY = Input.GetAxis("Mouse Y") * cameraSensitivity.y;
-
-        transform.Rotate(Vector3.up, mouseX);
-
-        cameraVerticalAngle = Mathf.Lerp(cameraVerticalAngle,
-                                          Mathf.Clamp(cameraVerticalAngle - mouseY,
-                                                      cameraMinVerticalAngle,
-                                                      cameraMaxVerticalAngle),
-                                          Time.deltaTime * cameraRotationSmoothness);
-    }
-
-    void PositionCamera()
-    {
-        Vector3 targetPosition = transform.position;
-        targetPosition.y += cameraHeight;
-
-        Quaternion rotation = Quaternion.Euler(cameraVerticalAngle, transform.eulerAngles.y, 0);
-        Vector3 backOffset = rotation * Vector3.back * cameraDistance;
-        targetCameraPosition = targetPosition + backOffset;
-        targetCameraRotation = Quaternion.LookRotation(targetPosition - targetCameraPosition);
-
-        RaycastHit hit;
-        if (Physics.Linecast(targetPosition, targetCameraPosition, out hit, ~(1 << LayerMask.NameToLayer("Player"))))
-        {
-            targetCameraPosition = hit.point + hit.normal * cameraCollisionOffset;
-        }
-
-        cameraTransform.position = Vector3.SmoothDamp(cameraTransform.position, targetCameraPosition, ref cameraVelocity, 1 / cameraSmoothness);
-
-        cameraTransform.rotation = SmoothDampQuaternion(cameraTransform.rotation,
-                                                        targetCameraRotation,
-                                                        ref lastCameraRotation,
-                                                        1 / cameraRotationSmoothness);
-
-        cameraTransform.LookAt(targetPosition);
-    }
-
-    Quaternion SmoothDampQuaternion(Quaternion current, Quaternion target, ref Quaternion deriv, float time)
-    {
-        if (Quaternion.Dot(current, target) < 0)
-        {
-            target = new Quaternion(-target.x, -target.y, -target.z, -target.w);
-        }
-
-        return Quaternion.Slerp(current, target, 1 - Mathf.Exp(-time * Time.deltaTime));
     }
 
     void UpdateAnimator()
