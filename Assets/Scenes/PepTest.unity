@@ -1032,11 +1032,11 @@ MonoBehaviour:
   rotationSpeed: 15
   jumpForce: 7
   maxJumps: 1
-  slopeLimit: 45
+  slopeLimit: 0
   slopeInfluence: 0.5
   downhillMultiplier: 1.3
   uphillMultiplier: 0.7
-  slopeTransitionSmoothing: 5
+  slopeTransitionSmoothing: 10
   groundLayers:
     serializedVersion: 2
     m_Bits: 64

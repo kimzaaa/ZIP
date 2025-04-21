@@ -27,14 +27,14 @@ public class PlayerController : MonoBehaviour
     public float slopeInfluence = 0.5f;
     public float downhillMultiplier = 1.3f;
     public float uphillMultiplier = 0.7f;
-    public float slopeTransitionSmoothing = 5f;
+    public float slopeTransitionSmoothing = 10f;
 
     [Header("Ground Detection")]
     public LayerMask groundLayers;
     public float groundCheckDistance = 0.2f;
     public float coyoteTime = 0.15f;
     public float slopeRayLength = 1.5f;
-    public float snapDistance = 0.5f; 
+    public float snapDistance = 0.5f;
 
     [Header("Power-up System")]
     public float powerUpDuration = 5.0f;
@@ -138,7 +138,8 @@ public class PlayerController : MonoBehaviour
         if (targetDirection.magnitude > 0.1f)
         {
             targetDirection.Normalize();
-            smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, targetDirection, Time.fixedDeltaTime * 10f);
+            float smoothingFactor = isGrounded ? (IsOnSlope() ? 8f : 12f) : 12f * airControl;
+            smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, targetDirection, Time.fixedDeltaTime * smoothingFactor);
 
             float targetSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
             if (hasSpeedPowerUp)
@@ -158,7 +159,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else if (directionDot < -0.1f)
                 {
-                    slopeFactor *= uphillMultiplier;
+                    slopeFactor *= Mathf.Lerp(uphillMultiplier, 1.0f, rb.linearVelocity.magnitude / runSpeed);
                 }
                 targetSpeed *= slopeFactor;
             }
@@ -196,9 +197,10 @@ public class PlayerController : MonoBehaviour
     void CheckGrounded()
     {
         Vector3 rayStart = transform.position + Vector3.up * 0.1f;
-
         RaycastHit hit;
-        if (Physics.Raycast(rayStart, Vector3.down, out hit, groundCheckDistance + 0.1f, groundLayers))
+
+        float sphereRadius = capsuleCollider.radius * 0.5f;
+        if (Physics.SphereCast(rayStart, sphereRadius, Vector3.down, out hit, groundCheckDistance + 0.1f, groundLayers))
         {
             isGrounded = true;
             groundNormal = hit.normal;
@@ -208,23 +210,31 @@ public class PlayerController : MonoBehaviour
             {
                 remainingJumps = maxJumps;
             }
+
+            float distanceToGround = hit.distance - 0.1f;
+            if (distanceToGround > 0 && distanceToGround < snapDistance)
+            {
+                Vector3 targetPosition = transform.position - Vector3.up * distanceToGround;
+                transform.position = Vector3.Lerp(transform.position, targetPosition, Time.fixedDeltaTime * 10f);
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            }
         }
         else
         {
             isGrounded = false;
         }
 
-        // Ground snapping logic
         if (!isGrounded)
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, groundCheckDistance + snapDistance, groundLayers))
+            if (Physics.SphereCast(transform.position + Vector3.up * 0.5f, sphereRadius, Vector3.down, out hit, groundCheckDistance + snapDistance, groundLayers))
             {
-                float distanceToGround = hit.distance;
+                float distanceToGround = hit.distance - 0.5f;
                 if (distanceToGround < snapDistance)
                 {
-                    // Snap to ground
-                    transform.position = new Vector3(transform.position.x, hit.point.y + capsuleCollider.height / 2, transform.position.z);
+                    Vector3 targetPosition = new Vector3(transform.position.x, hit.point.y + capsuleCollider.height / 2, transform.position.z);
+                    transform.position = Vector3.Lerp(transform.position, targetPosition, Time.fixedDeltaTime * 10f);
                     isGrounded = true;
+                    groundNormal = hit.normal;
                     rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
                 }
             }
@@ -265,11 +275,20 @@ public class PlayerController : MonoBehaviour
             targetVelocity = slopeMovement;
 
             float downhillDot = Vector3.Dot(targetVelocity.normalized, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
+            float speedFactor = 1.0f;
+
             if (downhillDot > 0.1f)
             {
-                float speedFactor = 1.0f + (downhillDot * (downhillMultiplier - 1.0f));
-                targetVelocity *= speedFactor;
+                speedFactor = 1.0f + (downhillDot * (downhillMultiplier - 1.0f));
             }
+            else if (downhillDot < -0.1f)
+            {
+                speedFactor = Mathf.Lerp(1.0f, uphillMultiplier, slopeAngle / slopeLimit);
+                float momentum = rb.linearVelocity.magnitude / walkSpeed;
+                speedFactor = Mathf.Max(speedFactor, momentum * 0.8f);
+            }
+
+            targetVelocity *= speedFactor;
         }
 
         if (moveDirection.magnitude < 0.1f && isGrounded)
@@ -371,14 +390,8 @@ public class PlayerController : MonoBehaviour
         if (animator != null)
         {
             float normalizedSpeed = rb.linearVelocity.magnitude / walkSpeed;
-
             animator.SetFloat(animSpeedHash, normalizedSpeed);
             animator.SetBool(animGroundedHash, isGrounded);
-
-            if (animSlopeAngleHash != 0)
-            {
-                animator.SetFloat(animSlopeAngleHash, slopeAngle);
-            }
         }
     }
 
@@ -462,6 +475,9 @@ public class PlayerController : MonoBehaviour
 
             Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position + Vector3.up * 0.5f, moveDirection * slopeRayLength);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position + Vector3.down * (groundCheckDistance + 0.1f), capsuleCollider.radius * 0.5f);
         }
     }
 }
