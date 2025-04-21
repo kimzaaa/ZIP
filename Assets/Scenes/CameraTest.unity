@@ -231,14 +231,14 @@ MonoBehaviour:
     ScreenPosition: {x: 0, y: 0}
     DeadZone:
       Enabled: 0
-      Size: {x: 0.2, y: 0.2}
+      Size: {x: 0.06, y: 0.8}
     HardLimits:
       Enabled: 0
-      Size: {x: 0.8, y: 0.8}
+      Size: {x: 0.8, y: 0.89}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
   TargetOffset: {x: 0, y: 0, z: 0}
-  Damping: {x: 0.5, y: 0.5}
+  Damping: {x: 0.2, y: 0.2}
   Lookahead:
     Enabled: 0
     Time: 0
@@ -358,7 +358,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 154567395}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13870122, y: -0.0000000055539915, z: 7.7786394e-10, w: 0.99033433}
+  m_LocalRotation: {x: 0.13870122, y: -0.0000000073053554, z: 8.459948e-10, w: 0.9903343}
   m_LocalPosition: {x: 0, y: 2, z: -11.79}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -508,7 +508,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.03, y: -1.36, z: 8.37}
-  m_LocalScale: {x: 7.2091923, y: 7.2091923, z: 7.2091923}
+  m_LocalScale: {x: 42.3194, y: 42.3194, z: 42.3194}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -752,7 +752,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1449860432}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13870122, y: -0.000000005553992, z: 7.7786405e-10, w: 0.9903343}
+  m_LocalRotation: {x: 0.13870122, y: -0.000000007330663, z: 0.0000000010266957, w: 0.9903343}
   m_LocalPosition: {x: 0, y: 2, z: -11.79}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -916,30 +916,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 120f35743b9668249bf2ffd41350cdd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 6
+  walkSpeed: 20
   runSpeed: 12
   acceleration: 10
-  deceleration: 20
+  deceleration: 50
   airControl: 0.5
   rotationSpeed: 7
   jumpForce: 17
   maxJumps: 1
-  slideSpeed: 15
-  slideCooldown: 1
-  slideDecayRate: 0.8
-  minSpeedForSlide: 4
-  slideHeight: 0.5
-  normalHeight: 2
-  slopeSpeedMultiplier: 1.5
-  maxSlopeAngle: 45
+  slopeLimit: 45
+  slopeInfluence: 0.5
+  downhillMultiplier: 1.3
+  uphillMultiplier: 0.7
+  slopeTransitionSmoothing: 5
   groundLayers:
     serializedVersion: 2
     m_Bits: 64
   groundCheckDistance: 1
   coyoteTime: 0.15
+  slopeRayLength: 1.5
+  snapDistance: 0.5
   powerUpDuration: 5
   speedPowerUpMultiplier: 1.5
   jumpPowerUpMultiplier: 1.5
+  movementSmoothing: 0.05
+  velocityLerpSpeed: 20
+  inertiaFactor: 0.95
+  frictionlessDecelerationMultiplier: 0.2
 --- !u!54 &1520296811
 Rigidbody:
   m_ObjectHideFlags: 0
