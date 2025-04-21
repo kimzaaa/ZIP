@@ -29,22 +29,12 @@ public class PlayerController : MonoBehaviour
     public float uphillMultiplier = 0.7f;
     public float slopeTransitionSmoothing = 5f;
 
-    [Header("Slide Parameters")]
-    public float slideSpeed = 15.0f;
-    public float slideCooldown = 1.0f;
-    public float slideDecayRate = 0.8f;
-    public float minSpeedForSlide = 4.0f;
-    public float slideHeight = 0.5f;
-    public float normalHeight = 2.0f;
-    public float slopeSpeedMultiplier = 1.5f;
-    public float maxSlopeAngle = 45f;
-    public float slideTransitionSpeed = 10f;
-
     [Header("Ground Detection")]
     public LayerMask groundLayers;
     public float groundCheckDistance = 0.2f;
     public float coyoteTime = 0.15f;
     public float slopeRayLength = 1.5f;
+    public float snapDistance = 0.5f; 
 
     [Header("Power-up System")]
     public float powerUpDuration = 5.0f;
@@ -59,17 +49,11 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 moveDirection = Vector3.zero;
     private float currentSpeed = 0f;
-    private Vector3 slideDirection = Vector3.zero;
-    private bool isSliding = false;
-    private float nextSlideTime = 0f;
-    private float slideTimeRemaining = 0f;
     private bool isGrounded = false;
     private float lastGroundedTime = 0f;
     private Vector3 groundNormal = Vector3.up;
     private float originalColliderHeight;
     private Vector3 originalColliderCenter;
-    private float targetColliderHeight;
-    private Vector3 targetColliderCenter;
     private float slopeAngle = 0f;
     private Vector3 smoothedMoveDirection = Vector3.zero;
     private Vector3 currentVelocity = Vector3.zero;
@@ -83,13 +67,11 @@ public class PlayerController : MonoBehaviour
     private int animSpeedHash;
     private int animGroundedHash;
     private int animJumpHash;
-    private int animSlideHash;
     private int animSlopeAngleHash;
 
     private float horizontalInput;
     private float verticalInput;
     private bool jumpPressed;
-    private bool slidePressed;
 
     void Start()
     {
@@ -106,8 +88,6 @@ public class PlayerController : MonoBehaviour
 
         originalColliderHeight = capsuleCollider.height;
         originalColliderCenter = capsuleCollider.center;
-        targetColliderHeight = originalColliderHeight;
-        targetColliderCenter = originalColliderCenter;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -117,7 +97,6 @@ public class PlayerController : MonoBehaviour
             animSpeedHash = Animator.StringToHash("Speed");
             animGroundedHash = Animator.StringToHash("Grounded");
             animJumpHash = Animator.StringToHash("Jump");
-            animSlideHash = Animator.StringToHash("Sliding");
             animSlopeAngleHash = Animator.StringToHash("SlopeAngle");
         }
 
@@ -134,18 +113,12 @@ public class PlayerController : MonoBehaviour
             jumpPressed = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            slidePressed = true;
-        }
-
         if (Input.GetKeyDown(KeyCode.E))
         {
             ActivateSkill();
         }
 
         UpdateAnimator();
-        UpdateColliderShape();
     }
 
     void FixedUpdate()
@@ -162,7 +135,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 targetDirection = forward * verticalInput + right * horizontalInput;
 
-        if (targetDirection.magnitude > 0.1f && !isSliding)
+        if (targetDirection.magnitude > 0.1f)
         {
             targetDirection.Normalize();
             smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, targetDirection, Time.fixedDeltaTime * 10f);
@@ -197,19 +170,10 @@ public class PlayerController : MonoBehaviour
 
             moveDirection = smoothedMoveDirection;
         }
-        else if (!isSliding)
+        else
         {
-            if (targetDirection.magnitude < 0.1f)
-            {
-                currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.fixedDeltaTime * deceleration * frictionlessDecelerationMultiplier);
-                smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, Vector3.zero, Time.fixedDeltaTime * deceleration * frictionlessDecelerationMultiplier);
-            }
-        }
-
-        if (slidePressed && Time.time > nextSlideTime && currentSpeed > minSpeedForSlide && isGrounded)
-        {
-            StartSlide();
-            slidePressed = false;
+            currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.fixedDeltaTime * deceleration * frictionlessDecelerationMultiplier);
+            smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, Vector3.zero, Time.fixedDeltaTime * deceleration * frictionlessDecelerationMultiplier);
         }
 
         if (jumpPressed)
@@ -249,6 +213,22 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = false;
         }
+
+        // Ground snapping logic
+        if (!isGrounded)
+        {
+            if (Physics.Raycast(transform.position, Vector3.down, out hit, groundCheckDistance + snapDistance, groundLayers))
+            {
+                float distanceToGround = hit.distance;
+                if (distanceToGround < snapDistance)
+                {
+                    // Snap to ground
+                    transform.position = new Vector3(transform.position.x, hit.point.y + capsuleCollider.height / 2, transform.position.z);
+                    isGrounded = true;
+                    rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                }
+            }
+        }
     }
 
     void DetectSlope()
@@ -277,100 +257,66 @@ public class PlayerController : MonoBehaviour
 
     void HandleMovement()
     {
-        if (isSliding)
+        Vector3 targetVelocity = moveDirection * currentSpeed;
+
+        if (IsOnSlope())
         {
-            slideDirection = Vector3.Lerp(slideDirection, slideDirection * slideDecayRate, Time.fixedDeltaTime);
-            Vector3 slideVelocity = slideDirection;
+            Vector3 slopeMovement = Vector3.ProjectOnPlane(targetVelocity, groundNormal);
+            targetVelocity = slopeMovement;
 
-            if (IsOnSlope())
+            float downhillDot = Vector3.Dot(targetVelocity.normalized, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
+            if (downhillDot > 0.1f)
             {
-                Vector3 slopeDirection = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
-                float slopeInfluence = slopeAngle / maxSlopeAngle;
-
-                slideVelocity += slopeDirection * slopeSpeedMultiplier * slopeInfluence;
-            }
-
-            Vector3 verticalVel = new Vector3(0, rb.linearVelocity.y, 0);
-
-            Vector3 targetVelocity = slideVelocity + verticalVel;
-            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 10f);
-
-            slideTimeRemaining -= Time.fixedDeltaTime;
-
-            if (slideTimeRemaining <= 0 || slideDirection.magnitude < 1.0f)
-            {
-                EndSlide();
+                float speedFactor = 1.0f + (downhillDot * (downhillMultiplier - 1.0f));
+                targetVelocity *= speedFactor;
             }
         }
-        else
+
+        if (moveDirection.magnitude < 0.1f && isGrounded)
         {
-            Vector3 targetVelocity = moveDirection * currentSpeed;
+            Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
-            if (IsOnSlope())
+            if (currentHorizontalVelocity.magnitude > 0.1f)
             {
-                Vector3 slopeMovement = Vector3.ProjectOnPlane(targetVelocity, groundNormal);
-                targetVelocity = slopeMovement;
-
-                float downhillDot = Vector3.Dot(targetVelocity.normalized, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
-                if (downhillDot > 0.1f)
-                {
-                    float speedFactor = 1.0f + (downhillDot * (slopeSpeedMultiplier - 1.0f));
-                    targetVelocity *= speedFactor;
-
-                    if (slopeAngle > 20f && currentSpeed > minSpeedForSlide && !isSliding)
-                    {
-                        StartSlide();
-                        return;
-                    }
-                }
+                targetVelocity = currentHorizontalVelocity * inertiaFactor;
             }
+        }
 
-            if (moveDirection.magnitude < 0.1f && isGrounded)
+        targetVelocity.y = rb.linearVelocity.y;
+
+        if (isGrounded)
+        {
+            if (moveDirection.magnitude > 0.1f)
+            {
+                Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                Vector3 targetHorizontalVelocity = new Vector3(targetVelocity.x, 0, targetVelocity.z);
+
+                Vector3 newHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, targetHorizontalVelocity, Time.fixedDeltaTime * velocityLerpSpeed);
+
+                rb.linearVelocity = new Vector3(newHorizontalVelocity.x, rb.linearVelocity.y, newHorizontalVelocity.z);
+            }
+            else
             {
                 Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
                 if (currentHorizontalVelocity.magnitude > 0.1f)
                 {
-                    targetVelocity = currentHorizontalVelocity * inertiaFactor;
+                    Vector3 deceleratedVelocity = currentHorizontalVelocity * (1.0f - (Time.fixedDeltaTime * frictionlessDecelerationMultiplier));
+                    rb.linearVelocity = new Vector3(deceleratedVelocity.x, rb.linearVelocity.y, deceleratedVelocity.z);
                 }
             }
-
-            targetVelocity.y = rb.linearVelocity.y;
-
-            if (isGrounded)
+        }
+        else
+        {
+            if (moveDirection.magnitude > 0.1f)
             {
-                if (moveDirection.magnitude > 0.1f)
-                {
-                    Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-                    Vector3 targetHorizontalVelocity = new Vector3(targetVelocity.x, 0, targetVelocity.z);
+                Vector3 airVelocity = new Vector3(
+                    Mathf.Lerp(rb.linearVelocity.x, targetVelocity.x, Time.fixedDeltaTime * airControl * velocityLerpSpeed),
+                    rb.linearVelocity.y,
+                    Mathf.Lerp(rb.linearVelocity.z, targetVelocity.z, Time.fixedDeltaTime * airControl * velocityLerpSpeed)
+                );
 
-                    Vector3 newHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, targetHorizontalVelocity, Time.fixedDeltaTime * velocityLerpSpeed);
-
-                    rb.linearVelocity = new Vector3(newHorizontalVelocity.x, rb.linearVelocity.y, newHorizontalVelocity.z);
-                }
-                else
-                {
-                    Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-
-                    if (currentHorizontalVelocity.magnitude > 0.1f)
-                    {
-                        Vector3 deceleratedVelocity = currentHorizontalVelocity * (1.0f - (Time.fixedDeltaTime * frictionlessDecelerationMultiplier));
-                        rb.linearVelocity = new Vector3(deceleratedVelocity.x, rb.linearVelocity.y, deceleratedVelocity.z);
-                    }
-                }
-            }
-            else
-            {
-                if (moveDirection.magnitude > 0.1f)
-                {
-                    Vector3 airVelocity = new Vector3(
-                        Mathf.Lerp(rb.linearVelocity.x, targetVelocity.x, Time.fixedDeltaTime * airControl * velocityLerpSpeed),
-                        rb.linearVelocity.y,
-                        Mathf.Lerp(rb.linearVelocity.z, targetVelocity.z, Time.fixedDeltaTime * airControl * velocityLerpSpeed)
-                    );
-
-                    rb.linearVelocity = airVelocity;
-                }
+                rb.linearVelocity = airVelocity;
             }
         }
 
@@ -379,7 +325,7 @@ public class PlayerController : MonoBehaviour
 
     void CancelFriction()
     {
-        if (!isGrounded || isSliding || moveDirection.magnitude > 0.1f)
+        if (!isGrounded || moveDirection.magnitude > 0.1f)
             return;
 
         Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
@@ -420,69 +366,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void StartSlide()
-    {
-        isSliding = true;
-
-        Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        Vector3 slideBoost = transform.forward * slideSpeed;
-
-        if (currentHorizontalVelocity.magnitude > 0.1f)
-        {
-            slideDirection = Vector3.Lerp(currentHorizontalVelocity.normalized, transform.forward, 0.6f) * slideSpeed;
-        }
-        else
-        {
-            slideDirection = slideBoost;
-        }
-
-        slideTimeRemaining = 1.0f;
-
-        targetColliderHeight = slideHeight;
-        targetColliderCenter = new Vector3(0, slideHeight / 2, 0);
-
-        rb.linearVelocity = new Vector3(slideDirection.x, rb.linearVelocity.y, slideDirection.z);
-
-        if (animator != null)
-        {
-            animator.SetBool(animSlideHash, true);
-        }
-    }
-
-    void EndSlide()
-    {
-        isSliding = false;
-        nextSlideTime = Time.time + slideCooldown;
-
-        targetColliderHeight = originalColliderHeight;
-        targetColliderCenter = originalColliderCenter;
-
-        Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        if (currentHorizontalVelocity.magnitude > walkSpeed)
-        {
-            Vector3 normalizedDirection = currentHorizontalVelocity.normalized;
-            rb.linearVelocity = new Vector3(
-                normalizedDirection.x * walkSpeed,
-                rb.linearVelocity.y,
-                normalizedDirection.z * walkSpeed
-            );
-        }
-
-        if (animator != null)
-        {
-            animator.SetBool(animSlideHash, false);
-        }
-    }
-
-    void UpdateColliderShape()
-    {
-        if (capsuleCollider.height != targetColliderHeight || capsuleCollider.center != targetColliderCenter)
-        {
-            capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetColliderHeight, Time.deltaTime * slideTransitionSpeed);
-            capsuleCollider.center = Vector3.Lerp(capsuleCollider.center, targetColliderCenter, Time.deltaTime * slideTransitionSpeed);
-        }
-    }
-
     void UpdateAnimator()
     {
         if (animator != null)
@@ -491,7 +374,6 @@ public class PlayerController : MonoBehaviour
 
             animator.SetFloat(animSpeedHash, normalizedSpeed);
             animator.SetBool(animGroundedHash, isGrounded);
-            animator.SetBool(animSlideHash, isSliding);
 
             if (animSlopeAngleHash != 0)
             {
@@ -569,17 +451,6 @@ public class PlayerController : MonoBehaviour
     public void ApplyExternalForce(Vector3 force, ForceMode forceMode = ForceMode.Impulse)
     {
         rb.AddForce(force, forceMode);
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (isSliding && collision.contacts.Length > 0)
-        {
-            ContactPoint contact = collision.contacts[0];
-            Vector3 reflectDir = Vector3.Reflect(slideDirection.normalized, contact.normal);
-
-            slideDirection = reflectDir * slideDirection.magnitude * 0.8f;
-        }
     }
 
     void OnDrawGizmos()
