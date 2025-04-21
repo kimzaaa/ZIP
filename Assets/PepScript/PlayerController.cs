@@ -9,6 +9,8 @@ public class PlayerController : MonoBehaviour
     private CapsuleCollider capsuleCollider;
     private Transform cameraTransform;
     private Animator animator;
+    private Vector3 lastCameraPosition;
+    private Quaternion lastCameraRotation;
 
     [Header("Basic Movement")]
     public float walkSpeed = 6.0f;
@@ -23,6 +25,13 @@ public class PlayerController : MonoBehaviour
     public int maxJumps = 1;
     private int remainingJumps;
 
+    [Header("Slope Parameters")]
+    public float slopeLimit = 45f;
+    public float slopeInfluence = 0.5f;
+    public float downhillMultiplier = 1.3f;
+    public float uphillMultiplier = 0.7f;
+    public float slopeTransitionSmoothing = 5f;
+
     [Header("Slide Parameters")]
     public float slideSpeed = 15.0f;
     public float slideCooldown = 1.0f;
@@ -32,19 +41,23 @@ public class PlayerController : MonoBehaviour
     public float normalHeight = 2.0f;
     public float slopeSpeedMultiplier = 1.5f;
     public float maxSlopeAngle = 45f;
+    public float slideTransitionSpeed = 10f;
 
     [Header("Camera Parameters")]
     public float cameraDistance = 5.0f;
     public float cameraHeight = 2.0f;
     public float cameraSmoothness = 5.0f;
+    public float cameraRotationSmoothness = 10f;
     public Vector2 cameraSensitivity = new Vector2(3.0f, 2.0f);
     public float cameraMinVerticalAngle = -30.0f;
     public float cameraMaxVerticalAngle = 60.0f;
+    public float cameraCollisionOffset = 0.2f;
 
     [Header("Ground Detection")]
     public LayerMask groundLayers;
     public float groundCheckDistance = 0.2f;
     public float coyoteTime = 0.15f;
+    public float slopeRayLength = 1.5f;
 
     [Header("Power-up System")]
     public float powerUpDuration = 5.0f;
@@ -62,8 +75,14 @@ public class PlayerController : MonoBehaviour
     private Vector3 groundNormal = Vector3.up;
     private float originalColliderHeight;
     private Vector3 originalColliderCenter;
+    private float targetColliderHeight;
+    private Vector3 targetColliderCenter;
+    private float slopeAngle = 0f;
 
     private float cameraVerticalAngle = 0f;
+    private Vector3 cameraVelocity = Vector3.zero;
+    private Vector3 targetCameraPosition;
+    private Quaternion targetCameraRotation;
 
     private bool hasSpeedPowerUp = false;
     private bool hasJumpPowerUp = false;
@@ -74,6 +93,7 @@ public class PlayerController : MonoBehaviour
     private int animGroundedHash;
     private int animJumpHash;
     private int animSlideHash;
+    private int animSlopeAngleHash;
 
     void Start()
     {
@@ -87,10 +107,18 @@ public class PlayerController : MonoBehaviour
 
         originalColliderHeight = capsuleCollider.height;
         originalColliderCenter = capsuleCollider.center;
+        targetColliderHeight = originalColliderHeight;
+        targetColliderCenter = originalColliderCenter;
 
         GameObject cameraObj = new GameObject("PlayerCamera");
         cameraObj.AddComponent<Camera>();
         cameraTransform = cameraObj.transform;
+        targetCameraPosition = transform.position + Vector3.up * cameraHeight - transform.forward * cameraDistance;
+        targetCameraRotation = Quaternion.LookRotation(transform.position + Vector3.up * cameraHeight - targetCameraPosition);
+        cameraTransform.position = targetCameraPosition;
+        cameraTransform.rotation = targetCameraRotation;
+        lastCameraPosition = cameraTransform.position;
+        lastCameraRotation = cameraTransform.rotation;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -101,6 +129,7 @@ public class PlayerController : MonoBehaviour
             animGroundedHash = Animator.StringToHash("Grounded");
             animJumpHash = Animator.StringToHash("Jump");
             animSlideHash = Animator.StringToHash("Sliding");
+            animSlopeAngleHash = Animator.StringToHash("SlopeAngle");
         }
 
         remainingJumps = maxJumps;
@@ -109,8 +138,10 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         CheckGrounded();
+        DetectSlope();
         HandleCamera();
         HandleInput();
+        UpdateColliderShape();
         UpdateAnimator();
     }
 
@@ -146,12 +177,30 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void DetectSlope()
+    {
+        if (!isGrounded)
+        {
+            slopeAngle = 0f;
+            return;
+        }
+
+        slopeAngle = Vector3.Angle(groundNormal, Vector3.up);
+
+        // Check for slopes ahead
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, moveDirection, out hit, slopeRayLength, groundLayers))
+        {
+            float forwardSlopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+            // Blend current slope with upcoming slope for smoother transitions
+            slopeAngle = Mathf.Lerp(slopeAngle, forwardSlopeAngle, Time.deltaTime * slopeTransitionSmoothing);
+        }
+    }
+
     bool IsOnSlope()
     {
         if (!isGrounded) return false;
-
-        float angle = Vector3.Angle(groundNormal, Vector3.up);
-        return angle > 0 && angle <= maxSlopeAngle;
+        return slopeAngle > 0 && slopeAngle <= slopeLimit;
     }
 
     void HandleInput()
@@ -177,6 +226,26 @@ public class PlayerController : MonoBehaviour
             }
 
             float accelRate = isGrounded ? acceleration : acceleration * airControl;
+
+            // Adjust speed for slopes
+            if (IsOnSlope())
+            {
+                float slopeFactor = 1f - (slopeAngle / slopeLimit) * slopeInfluence;
+
+                // Check if moving uphill or downhill
+                float directionDot = Vector3.Dot(targetDirection, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
+
+                if (directionDot > 0.1f) // Moving downhill
+                {
+                    slopeFactor *= downhillMultiplier;
+                }
+                else if (directionDot < -0.1f) // Moving uphill
+                {
+                    slopeFactor *= uphillMultiplier;
+                }
+
+                targetSpeed *= slopeFactor;
+            }
 
             currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * accelRate);
 
@@ -225,7 +294,6 @@ public class PlayerController : MonoBehaviour
             if (IsOnSlope())
             {
                 Vector3 slopeDirection = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
-                float slopeAngle = Vector3.Angle(groundNormal, Vector3.up);
                 float slopeInfluence = slopeAngle / maxSlopeAngle;
 
                 slideVelocity += slopeDirection * slopeSpeedMultiplier * slopeInfluence;
@@ -247,14 +315,20 @@ public class PlayerController : MonoBehaviour
 
             if (IsOnSlope())
             {
-                targetVelocity = Vector3.ProjectOnPlane(targetVelocity, groundNormal);
+                Vector3 slopeMovement = Vector3.ProjectOnPlane(targetVelocity, groundNormal);
+                Vector3 slopeCorrectionVelocity = slopeMovement - targetVelocity;
+                targetVelocity = slopeMovement;
+
+                // Gradually adjust to the slope-projected velocity for smoother transitions
+                Vector3 currentVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                targetVelocity = Vector3.Lerp(currentVelocity, targetVelocity, Time.deltaTime * slopeTransitionSmoothing);
 
                 float downhillDot = Vector3.Dot(targetVelocity.normalized, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
                 if (downhillDot > 0.1f)
                 {
-                    targetVelocity *= slopeSpeedMultiplier;
+                    float speedFactor = 1.0f + (downhillDot * (slopeSpeedMultiplier - 1.0f));
+                    targetVelocity *= speedFactor;
 
-                    float slopeAngle = Vector3.Angle(groundNormal, Vector3.up);
                     if (slopeAngle > 20f && currentSpeed > minSpeedForSlide && !isSliding)
                     {
                         StartSlide();
@@ -289,11 +363,19 @@ public class PlayerController : MonoBehaviour
         float jumpMultiplier = hasJumpPowerUp ? jumpPowerUpMultiplier : 1.0f;
         float finalJumpForce = jumpForce * jumpMultiplier;
 
-        Vector3 velocity = rb.linearVelocity;
-        velocity.y = 0;
-        rb.linearVelocity = velocity;
-
-        rb.AddForce(Vector3.up * finalJumpForce, ForceMode.Impulse);
+        if (IsOnSlope())
+        {
+            Vector3 slopeJumpDirection = Vector3.Lerp(Vector3.up, groundNormal, 0.5f).normalized;
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            rb.AddForce(slopeJumpDirection * finalJumpForce, ForceMode.Impulse);
+        }
+        else
+        {
+            Vector3 velocity = rb.linearVelocity;
+            velocity.y = 0;
+            rb.linearVelocity = velocity;
+            rb.AddForce(Vector3.up * finalJumpForce, ForceMode.Impulse);
+        }
 
         remainingJumps--;
 
@@ -309,14 +391,13 @@ public class PlayerController : MonoBehaviour
         slideDirection = transform.forward * slideSpeed;
         slideTimeRemaining = 1.0f;
 
-        capsuleCollider.height = slideHeight;
-        capsuleCollider.center = new Vector3(0, slideHeight / 2, 0);
+        targetColliderHeight = slideHeight;
+        targetColliderCenter = new Vector3(0, slideHeight / 2, 0);
 
         Vector3 currentVel = rb.linearVelocity;
         currentVel.y = 0;
         rb.linearVelocity = slideDirection + new Vector3(0, rb.linearVelocity.y, 0);
 
-        // Trigger animation
         if (animator != null)
         {
             animator.SetBool(animSlideHash, true);
@@ -328,12 +409,21 @@ public class PlayerController : MonoBehaviour
         isSliding = false;
         nextSlideTime = Time.time + slideCooldown;
 
-        capsuleCollider.height = originalColliderHeight;
-        capsuleCollider.center = originalColliderCenter;
+        targetColliderHeight = originalColliderHeight;
+        targetColliderCenter = originalColliderCenter;
 
         if (animator != null)
         {
             animator.SetBool(animSlideHash, false);
+        }
+    }
+
+    void UpdateColliderShape()
+    {
+        if (capsuleCollider.height != targetColliderHeight || capsuleCollider.center != targetColliderCenter)
+        {
+            capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetColliderHeight, Time.deltaTime * slideTransitionSpeed);
+            capsuleCollider.center = Vector3.Lerp(capsuleCollider.center, targetColliderCenter, Time.deltaTime * slideTransitionSpeed);
         }
     }
 
@@ -344,8 +434,11 @@ public class PlayerController : MonoBehaviour
 
         transform.Rotate(Vector3.up, mouseX);
 
-        cameraVerticalAngle -= mouseY;
-        cameraVerticalAngle = Mathf.Clamp(cameraVerticalAngle, cameraMinVerticalAngle, cameraMaxVerticalAngle);
+        cameraVerticalAngle = Mathf.Lerp(cameraVerticalAngle,
+                                          Mathf.Clamp(cameraVerticalAngle - mouseY,
+                                                      cameraMinVerticalAngle,
+                                                      cameraMaxVerticalAngle),
+                                          Time.deltaTime * cameraRotationSmoothness);
     }
 
     void PositionCamera()
@@ -354,11 +447,34 @@ public class PlayerController : MonoBehaviour
         targetPosition.y += cameraHeight;
 
         Quaternion rotation = Quaternion.Euler(cameraVerticalAngle, transform.eulerAngles.y, 0);
-
         Vector3 backOffset = rotation * Vector3.back * cameraDistance;
-        cameraTransform.position = Vector3.Lerp(cameraTransform.position, targetPosition + backOffset, cameraSmoothness * Time.deltaTime);
+        targetCameraPosition = targetPosition + backOffset;
+        targetCameraRotation = Quaternion.LookRotation(targetPosition - targetCameraPosition);
+
+        RaycastHit hit;
+        if (Physics.Linecast(targetPosition, targetCameraPosition, out hit, ~(1 << LayerMask.NameToLayer("Player"))))
+        {
+            targetCameraPosition = hit.point + hit.normal * cameraCollisionOffset;
+        }
+
+        cameraTransform.position = Vector3.SmoothDamp(cameraTransform.position, targetCameraPosition, ref cameraVelocity, 1 / cameraSmoothness);
+
+        cameraTransform.rotation = SmoothDampQuaternion(cameraTransform.rotation,
+                                                        targetCameraRotation,
+                                                        ref lastCameraRotation,
+                                                        1 / cameraRotationSmoothness);
 
         cameraTransform.LookAt(targetPosition);
+    }
+
+    Quaternion SmoothDampQuaternion(Quaternion current, Quaternion target, ref Quaternion deriv, float time)
+    {
+        if (Quaternion.Dot(current, target) < 0)
+        {
+            target = new Quaternion(-target.x, -target.y, -target.z, -target.w);
+        }
+
+        return Quaternion.Slerp(current, target, 1 - Mathf.Exp(-time * Time.deltaTime));
     }
 
     void UpdateAnimator()
@@ -370,6 +486,11 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat(animSpeedHash, normalizedSpeed);
             animator.SetBool(animGroundedHash, isGrounded);
             animator.SetBool(animSlideHash, isSliding);
+
+            if (animSlopeAngleHash != 0)
+            {
+                animator.SetFloat(animSlopeAngleHash, slopeAngle);
+            }
         }
     }
 
@@ -421,7 +542,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Jump PowerUp Activated!");
 
         hasJumpPowerUp = true;
-        remainingJumps = maxJumps; // Reset jump count as part of power-up
+        remainingJumps = maxJumps;
         yield return new WaitForSeconds(powerUpDuration);
         hasJumpPowerUp = false;
 
@@ -460,6 +581,18 @@ public class PlayerController : MonoBehaviour
             Vector3 reflectDir = Vector3.Reflect(slideDirection.normalized, contact.normal);
 
             slideDirection = reflectDir * slideDirection.magnitude * 0.8f;
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        if (Application.isPlaying)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(transform.position, groundNormal * 1.5f);
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(transform.position + Vector3.up * 0.5f, moveDirection * slopeRayLength);
         }
     }
 }
