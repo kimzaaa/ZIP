@@ -265,7 +265,7 @@ TerrainCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 493140298}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 1dc1486d18c7d4842ab772b0b190f025, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -808,8 +808,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 120f35743b9668249bf2ffd41350cdd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 6
-  runSpeed: 12
+  walkSpeed: 24
+  runSpeed: 24
   acceleration: 10
   deceleration: 20
   airControl: 0.5
@@ -839,6 +839,10 @@ MonoBehaviour:
   powerUpDuration: 5
   speedPowerUpMultiplier: 1.5
   jumpPowerUpMultiplier: 1.5
+  movementSmoothing: 15
+  velocityLerpSpeed: 15
+  inertiaFactor: 0.95
+  frictionlessDecelerationMultiplier: 0.2
 --- !u!54 &1594759075
 Rigidbody:
   m_ObjectHideFlags: 0

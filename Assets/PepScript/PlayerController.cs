@@ -86,6 +86,11 @@ public class PlayerController : MonoBehaviour
     private int animSlideHash;
     private int animSlopeAngleHash;
 
+    private float horizontalInput;
+    private float verticalInput;
+    private bool jumpPressed;
+    private bool slidePressed;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -121,20 +126,107 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        CheckGrounded();
-        DetectSlope();
-        HandleInput();
-        UpdateColliderShape();
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpPressed = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            slidePressed = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            ActivateSkill();
+        }
+
         UpdateAnimator();
-
-        lastFrameVelocity = rb.linearVelocity;
-
-        HandleMovement();
+        UpdateColliderShape();
     }
 
     void FixedUpdate()
     {
-        
+        CheckGrounded();
+        DetectSlope();
+
+        Vector3 forward = Camera.main.transform.forward;
+        Vector3 right = Camera.main.transform.right;
+        forward.y = 0;
+        right.y = 0;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 targetDirection = forward * verticalInput + right * horizontalInput;
+
+        if (targetDirection.magnitude > 0.1f && !isSliding)
+        {
+            targetDirection.Normalize();
+            smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, targetDirection, Time.fixedDeltaTime * 10f);
+
+            float targetSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+            if (hasSpeedPowerUp)
+            {
+                targetSpeed *= speedPowerUpMultiplier;
+            }
+
+            float accelRate = isGrounded ? acceleration : acceleration * airControl;
+
+            if (IsOnSlope())
+            {
+                float slopeFactor = 1f - (slopeAngle / slopeLimit) * slopeInfluence;
+                float directionDot = Vector3.Dot(smoothedMoveDirection, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
+                if (directionDot > 0.1f)
+                {
+                    slopeFactor *= downhillMultiplier;
+                }
+                else if (directionDot < -0.1f)
+                {
+                    slopeFactor *= uphillMultiplier;
+                }
+                targetSpeed *= slopeFactor;
+            }
+
+            currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.fixedDeltaTime * accelRate);
+
+            Quaternion targetRotation = Quaternion.LookRotation(smoothedMoveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+
+            moveDirection = smoothedMoveDirection;
+        }
+        else if (!isSliding)
+        {
+            if (targetDirection.magnitude < 0.1f)
+            {
+                currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.fixedDeltaTime * deceleration * frictionlessDecelerationMultiplier);
+                smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, Vector3.zero, Time.fixedDeltaTime * deceleration * frictionlessDecelerationMultiplier);
+            }
+        }
+
+        if (slidePressed && Time.time > nextSlideTime && currentSpeed > minSpeedForSlide && isGrounded)
+        {
+            StartSlide();
+            slidePressed = false;
+        }
+
+        if (jumpPressed)
+        {
+            bool canCoyoteJump = Time.time - lastGroundedTime < coyoteTime;
+            if (isGrounded || canCoyoteJump)
+            {
+                Jump();
+            }
+            else if (remainingJumps > 0)
+            {
+                Jump();
+            }
+            jumpPressed = false;
+        }
+
+        HandleMovement();
     }
 
     void CheckGrounded()
@@ -183,96 +275,11 @@ public class PlayerController : MonoBehaviour
         return slopeAngle > 0 && slopeAngle <= slopeLimit;
     }
 
-    void HandleInput()
-    {
-        Vector3 forward = Camera.main.transform.forward;
-        Vector3 right = Camera.main.transform.right;
-        forward.y = 0;
-        right.y = 0;
-        forward.Normalize();
-        right.Normalize();
-
-        Vector3 targetDirection = forward * Input.GetAxis("Vertical") + right * Input.GetAxis("Horizontal");
-
-        if (targetDirection.magnitude > 0.1f && !isSliding)
-        {
-            targetDirection.Normalize();
-
-            smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, targetDirection, Time.deltaTime * 10f);
-
-            float targetSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
-
-            if (hasSpeedPowerUp)
-            {
-                targetSpeed *= speedPowerUpMultiplier;
-            }
-
-            float accelRate = isGrounded ? acceleration : acceleration * airControl;
-
-            if (IsOnSlope())
-            {
-                float slopeFactor = 1f - (slopeAngle / slopeLimit) * slopeInfluence;
-
-                float directionDot = Vector3.Dot(smoothedMoveDirection, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
-
-                if (directionDot > 0.1f)
-                {
-                    slopeFactor *= downhillMultiplier;
-                }
-                else if (directionDot < -0.1f)
-                {
-                    slopeFactor *= uphillMultiplier;
-                }
-
-                targetSpeed *= slopeFactor;
-            }
-
-            currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * accelRate);
-
-            Quaternion targetRotation = Quaternion.LookRotation(smoothedMoveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            moveDirection = smoothedMoveDirection;
-        }
-        else if (!isSliding)
-        {
-            if (targetDirection.magnitude < 0.1f)
-            {
-                currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.deltaTime * deceleration * frictionlessDecelerationMultiplier);
-                smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, Vector3.zero, Time.deltaTime * deceleration * frictionlessDecelerationMultiplier);
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            bool canCoyoteJump = Time.time - lastGroundedTime < coyoteTime;
-
-            if (isGrounded || canCoyoteJump)
-            {
-                Jump();
-            }
-            else if (remainingJumps > 0)
-            {
-                Jump();
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.C) && Time.time > nextSlideTime && currentSpeed > minSpeedForSlide && isGrounded)
-        {
-            StartSlide();
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            ActivateSkill();
-        }
-    }
-
     void HandleMovement()
     {
         if (isSliding)
         {
-            slideDirection = Vector3.Lerp(slideDirection, slideDirection * slideDecayRate, Time.deltaTime);
+            slideDirection = Vector3.Lerp(slideDirection, slideDirection * slideDecayRate, Time.fixedDeltaTime);
             Vector3 slideVelocity = slideDirection;
 
             if (IsOnSlope())
@@ -364,10 +371,6 @@ public class PlayerController : MonoBehaviour
 
                     rb.linearVelocity = airVelocity;
                 }
-                else
-                {
-
-                }
             }
         }
 
@@ -376,7 +379,6 @@ public class PlayerController : MonoBehaviour
 
     void CancelFriction()
     {
-
         if (!isGrounded || isSliding || moveDirection.magnitude > 0.1f)
             return;
 
