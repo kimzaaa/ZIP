@@ -20,7 +20,7 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
-        // PlayMusic();
+        PlayMusic("FreeBird");
     }
 
     public void PlayMusic(string name)

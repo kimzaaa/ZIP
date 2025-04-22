@@ -246,7 +246,8 @@ void CheckGrounded()
     {
         if (!wasGrounded && rb.linearVelocity.y <= 0) // Check for landing (not grounded -> grounded, falling or stationary)
         {
-            CameraShakerHandler.Shake(landingShakeData); // Trigger landing shake once
+            CameraShakerHandler.Shake(landingShakeData); // Trigger landing shake
+            AudioManager.Instance.PlaySFX("LandingSFX"); // Play landing sound
         }
 
         isGrounded = true;
@@ -275,6 +276,12 @@ void CheckGrounded()
     {
         isGrounded = false;
         CameraShakerHandler.Shake(flyingShakeData);
+
+        // Play flying sound once when becoming airborne
+        // if (wasGrounded) // Check for transition from grounded to not grounded
+        // {
+        //     AudioManager.Instance.PlaySFX("FlyingSFX"); // Play flying sound once
+        // }
     }
 
     if (!isGrounded)
@@ -294,7 +301,8 @@ void CheckGrounded()
 
                 if (!wasGrounded && rb.linearVelocity.y <= 0) // Check for landing in secondary check
                 {
-                    CameraShakerHandler.Shake(landingShakeData); // Trigger landing shake once
+                    CameraShakerHandler.Shake(landingShakeData); // Trigger landing shake
+                    AudioManager.Instance.PlaySFX("LandingSFX"); // Play landing sound
                 }
 
                 isGrounded = true;

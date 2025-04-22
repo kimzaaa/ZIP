@@ -26,6 +26,7 @@ public class DestructibleBox : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             CameraShakerHandler.Shake(explosiveShake);
+            AudioManager.Instance.PlaySFX("ExplodeSFX");
             
             PackageController packageController = other.gameObject.GetComponent<PackageController>();
             if (packageController != null)
