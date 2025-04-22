@@ -18,10 +18,10 @@ MonoBehaviour:
   _shakeObjects: 1
   _iterationPercent: 1
   _unlimitedDuration: 0
-  _totalDuration: 4
-  _fadeInDuration: 0.5
+  _totalDuration: 0.7
+  _fadeInDuration: 0.1
   _fadeOutDuration: 0.5
-  _magnitude: 1
+  _magnitude: 1.4
   _magnitudeNoise: 0.1
   _magnitudeCurve:
     serializedVersion: 2
