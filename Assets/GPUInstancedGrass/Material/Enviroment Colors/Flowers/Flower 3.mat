@@ -1,0 +1,131 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Flower 3
+  m_Shader: {fileID: 4800000, guid: 3c4a8b9c26ca57c4ab88a9251688be8b, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _HIGHRESTERRAIN_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _CloudTex1:
+        m_Texture: {fileID: 2800000, guid: c4a8c9f27a489f54e8798fc40b54f9a9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CloudTex2:
+        m_Texture: {fileID: 2800000, guid: 676bf785dd726624ebb204c41686cc45, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 602e718ce449224418f327eb771ecab1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Ramp:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainBaseMap:
+        m_Texture: {fileID: 2800000, guid: 2a70ef88952f4a948b17a69a8c06d8e3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainRenderTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BlendFactor: 0
+    - _CloudIntensity: 0.5
+    - _CloudScale: 9.62
+    - _CloudSeedSpeed: 0.1
+    - _CloudShadowThreshold: 0.114
+    - _CloudSpeed: 0.1
+    - _CloudSpeed1: 0.03
+    - _CloudSpeed2: 0.01
+    - _ColorDifferenceThreshold: 0.1
+    - _ColorMatchThreshold: 0.1
+    - _ColorTolerance: 0.05
+    - _Cutoff: 0.5
+    - _FirstStep: 0.44
+    - _HighResTerrain: 1
+    - _HighlightThreshold: 0.416
+    - _IsDarkTime: 0
+    - _LightThreshold: 0.7
+    - _MidThreshold: 0.7
+    - _NoiseScale: 0.15
+    - _PixelSnap: 16
+    - _PixelSnapAmount: 10
+    - _SecondStep: 0.57
+    - _ShadowStrength: 1
+    - _ShadowThreshold: 1
+    - _Smoothness: 0.477
+    - _SwayAmount: 0.1
+    - _SwayAmplitude: 0.08
+    - _SwayFrequency: 0.47
+    - _SwaySpeed: 0.59
+    - _TerrainColorStrength: 0.5
+    - _TerrainUVScale: 0
+    - _ToonHighlightThreshold: 0
+    - _ToonShadowThreshold: 1
+    - _ToonThreshold: 1
+    m_Colors:
+    - _BaseWorldPos: {r: 0, g: 0, b: 0, a: 0}
+    - _BottomColor: {r: 0.5, g: 0.7, b: 0.3, a: 1}
+    - _CloudShadowColor: {r: 0.32941177, g: 0.45490196, b: 0.39607844, a: 1}
+    - _CloudShadowColor2: {r: 0.32941177, g: 0.45490196, b: 0.39607844, a: 1}
+    - _Color5: {r: 0.45882353, g: 0.5803922, b: 0.31764707, a: 1}
+    - _Color6: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _Color7: {r: 0.32941177, g: 0.45490196, b: 0.39607844, a: 1}
+    - _ColorBottom: {r: 0, g: 0, b: 0, a: 1}
+    - _ColorDark: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _ColorLight: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _ColorMid: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _ColorMiddle: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 1}
+    - _ColorTop: {r: 0.6132076, g: 0.6132076, b: 0.6132076, a: 1}
+    - _DarkShadowColor: {r: 0.29999998, g: 0.29999998, b: 0.29999998, a: 1}
+    - _GrassColor: {r: 0, g: 1, b: 0, a: 1}
+    - _GroundColor: {r: 0, g: 1, b: 0, a: 1}
+    - _HighlightColor: {r: 1, g: 0.51204026, b: 0, a: 1}
+    - _LightColor: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _LightDir: {r: 0, g: 1, b: 0, a: 0}
+    - _LightDirection: {r: -0.21130915, g: -0.90630776, b: 0.36599827, a: 0}
+    - _LitColor: {r: 1, g: 1, b: 1, a: 1}
+    - _MidColor: {r: 0.45882353, g: 0.5803922, b: 0.31764707, a: 1}
+    - _MidToneColor: {r: 0.45882353, g: 0.5803922, b: 0.31764707, a: 1}
+    - _MidtoneColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+    - _ReferenceGrassColor: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _ShadowColor: {r: 0.28235295, g: 0.40392157, b: 0.34509805, a: 1}
+    - _TerrainColor: {r: 1, g: 1, b: 1, a: 1}
+    - _TerrainMin: {r: 1.4, g: 0, b: 0.1497537, a: 0}
+    - _TerrainPosition: {r: -12.9759, g: 0, b: -12.4878, a: 0}
+    - _TerrainSize: {r: 550, g: 600, b: 490, a: 0}
+    - _ToonHighlightColor: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _ToonMidtoneColor: {r: 0.45882353, g: 0.5803922, b: 0.31764707, a: 1}
+    - _ToonShadowColor: {r: 0.32941177, g: 0.45490196, b: 0.39607844, a: 1}
+    - _TopColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

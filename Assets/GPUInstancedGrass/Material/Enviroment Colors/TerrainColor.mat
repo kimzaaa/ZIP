@@ -1,0 +1,127 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TerrainColor
+  m_Shader: {fileID: 4800000, guid: 136947f4ca4c2fc478815dc98680385b, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseTexture:
+        m_Texture: {fileID: 2800000, guid: d90de80410667e24ba1ce7a8d8e41ae5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CloudTex1:
+        m_Texture: {fileID: 2800000, guid: c4a8c9f27a489f54e8798fc40b54f9a9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CloudTex2:
+        m_Texture: {fileID: 2800000, guid: 676bf785dd726624ebb204c41686cc45, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CloudTex3:
+        m_Texture: {fileID: 2800000, guid: c4a8c9f27a489f54e8798fc40b54f9a9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CloudTex4:
+        m_Texture: {fileID: 2800000, guid: 676bf785dd726624ebb204c41686cc45, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture:
+        m_Texture: {fileID: 2800000, guid: 77cfbb42743144e46b0f06fbb99b639f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _CloudIntensity: 0.5
+    - _CloudScale: 38.45
+    - _CloudScale1: -19.73
+    - _CloudScale2: 9.12
+    - _CloudScale3: -16.68
+    - _CloudScale4: 1
+    - _CloudShadowThreshold: 0.152
+    - _CloudSpeed1: 0.002
+    - _CloudSpeed2: 0.01
+    - _CloudSpeed3: 0.01
+    - _CloudSpeed4: 0.1
+    - _ContourInterval: 1
+    - _ContourWidth: 0.1
+    - _FirstStep: 0.44
+    - _Height1: 0.2
+    - _Height2: 0.5
+    - _Height3: 1
+    - _Height4: 0.8
+    - _HeightMax: 10
+    - _HeightMin: 0
+    - _HeightOffset: 0.94
+    - _HeightThreshold: 5
+    - _IsDarkTime: 0
+    - _LightBands: 2
+    - _LightStep1: 0.75
+    - _LightStep2: 0.882
+    - _NoiseRandomness: -0.1
+    - _NoiseScale: -41.56
+    - _NoiseSpeedX: 0.38
+    - _NoiseSpeedY: 0.05
+    - _NoiseStrength: 0.5
+    - _NoiseThreshold1: 0.33
+    - _NoiseThreshold2: 0.66
+    - _OutlineThickness: 0.1
+    - _OutlineThreshold: 0.868
+    - _PatchSize: -3.5
+    - _SecondStep: 0.57
+    - _ShadowStrength: 1
+    - _ShadowThreshold: 0.5
+    - _SunAngleThreshold: 0.1
+    - _SunAngleTolerance: 1
+    - _SunNightThreshold: -0.5
+    - _TextureOpacity: 0.7
+    - _TextureSpeedX: 0.1
+    - _TextureSpeedY: 0.05
+    - _TextureStrength: 0.5
+    - _ToonBandStrength: 0.8
+    - _ToonThreshold: 0.5
+    m_Colors:
+    - _BaseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _Cloud2Color1: {r: 0.32941177, g: 0.45490196, b: 0.39607844, a: 1}
+    - _Cloud2Color2: {r: 0, g: 0, b: 0, a: 1}
+    - _CloudShadowColor: {r: 0.33361518, g: 0.46226418, b: 0.40195996, a: 1}
+    - _CloudShadowColor2: {r: 0.32941177, g: 0.45490196, b: 0.39607844, a: 1}
+    - _CloudShadowColor3: {r: 0.39999998, g: 0.34999996, b: 0.29999998, a: 1}
+    - _CloudSpeed1: {r: 0.1, g: 0.18, b: 0, a: 0}
+    - _CloudSpeed2: {r: 0.01, g: 0.1, b: 0, a: 0}
+    - _Color1: {r: 0.99215686, g: 0.84705883, b: 0.6431373, a: 1}
+    - _Color2: {r: 0.9490196, g: 0.6313726, b: 0.4627451, a: 1}
+    - _Color3: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _Color4: {r: 0.45882353, g: 0.5803922, b: 0.31764707, a: 1}
+    - _Color5: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _Color6: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _Color7: {r: 0.58431375, g: 0.67058825, b: 0.3882353, a: 1}
+    - _ContourColor: {r: 0, g: 0, b: 0, a: 1}
+    - _LightColor1: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
+    - _LightColor2: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+    - _LightColor3: {r: 1, g: 1, b: 1, a: 1}
+    - _NoiseColor1: {r: 0, g: 0.8, b: 0, a: 1}
+    - _NoiseColor2: {r: 1, g: 0.5, b: 0, a: 1}
+    - _NoiseColor3: {r: 0, g: 0.5, b: 1, a: 1}
+    - _OutlineColor: {r: 0.45882353, g: 0.5803922, b: 0.31764707, a: 1}
+    - _ShadowColor: {r: 0.32941177, g: 0.45490196, b: 0.39607844, a: 1}
+    - _ToonShadowColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
