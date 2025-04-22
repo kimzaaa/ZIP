@@ -74,7 +74,7 @@ Material:
     - _Smoothness: 0.15
     - _SubsurfaceDist: 0.85
     - _SubsurfacePow: 2
-    - _TopBright: 1.375
+    - _TopBright: 4.82
     - _Width: 1
     - _WindScale: 0.4
     - _WindStr: 0.25
