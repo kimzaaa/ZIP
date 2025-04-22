@@ -7,17 +7,16 @@ public class House : MonoBehaviour
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private float respawnDelay = 2f;
     [SerializeField] private GameObject healEffect;
+    [SerializeField] private GameObject packageReceivedEffect;
 
     private bool isPackageDelivered = false;
     private float respawnTimer = 0f;
+    private bool hasPackage = false;
 
     void Start()
     {
         GameObject existingPackage = GameObject.FindGameObjectWithTag("Package");
-        if (existingPackage == null)
-        {
-            SpawnNewPackage();
-        }
+        hasPackage = (existingPackage != null);
     }
 
     void Update()
@@ -38,8 +37,7 @@ public class House : MonoBehaviour
     public void PackageDelivered()
     {
         isPackageDelivered = true;
-        // Optional: Play some effect or sound to indicate successful delivery
-        // Instantiate(deliveryEffectPrefab, transform.position, Quaternion.identity);
+        hasPackage = false;
     }
 
     private void SpawnNewPackage()
@@ -50,9 +48,12 @@ public class House : MonoBehaviour
             Quaternion rotation = Quaternion.identity;
 
             Instantiate(packagePrefab, position, rotation);
+            hasPackage = true;
 
-            // Optional: Play spawn effect
-            // Instantiate(spawnEffectPrefab, position, Quaternion.identity);
+            if (packageReceivedEffect != null)
+            {
+                Instantiate(packageReceivedEffect, position, Quaternion.identity);
+            }
         }
         else
         {
@@ -73,6 +74,21 @@ public class House : MonoBehaviour
                     Instantiate(healEffect, transform.position + Vector3.up, Quaternion.identity);
                 }
             }
+
+            if (!hasPackage && !isPackageDelivered)
+            {
+                SpawnNewPackage();
+            }
+
+            if (WaypointManager.Instance != null && !WaypointManager.Instance.HasActiveWaypoint())
+            {
+                WaypointManager.Instance.GenerateWaypoint();
+            }
         }
+    }
+
+    public bool HasPackage()
+    {
+        return hasPackage;
     }
 }

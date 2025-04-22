@@ -9,7 +9,6 @@ public class Waypoint : MonoBehaviour
 
     private void Update()
     {
-        // Rotate waypoint for visual effect
         transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
     }
 
@@ -39,14 +38,12 @@ public class Waypoint : MonoBehaviour
         {
             WaypointManager.Instance.WaypointCollected(this);
         }
-
-        // Play collection effect
+        
         if (collectEffect != null)
         {
             Instantiate(collectEffect, transform.position, Quaternion.identity);
         }
 
-        // Destroy this waypoint
         Destroy(gameObject);
     }
 }

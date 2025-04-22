@@ -1,4 +1,3 @@
-using DG.Tweening.Core.Easing;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerController2))]
@@ -8,17 +7,21 @@ public class PackageController : MonoBehaviour
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private int currentHealth;
     [SerializeField] private bool isDamaged = false;
+    [SerializeField] private GameObject packageVisual;
 
     [Header("Effects")]
     [SerializeField] private GameObject damageEffect;
     [SerializeField] private GameObject healEffect;
+    [SerializeField] private GameObject deliveryEffect;
 
     private PlayerController2 playerController;
+    private bool hasPackage = true;
 
     private void Awake()
     {
         playerController = GetComponent<PlayerController2>();
         currentHealth = maxHealth;
+        hasPackage = true;
     }
 
     private void Start()
@@ -43,6 +46,9 @@ public class PackageController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        if (!hasPackage)
+            return;
+
         currentHealth -= damage;
 
         if (currentHealth <= 0)
@@ -54,6 +60,11 @@ public class PackageController : MonoBehaviour
             {
                 Instantiate(damageEffect, transform.position, Quaternion.identity);
             }
+
+            if (WaypointManager.Instance != null)
+            {
+                WaypointManager.Instance.ResetWaypoint();
+            }
         }
     }
 
@@ -61,6 +72,12 @@ public class PackageController : MonoBehaviour
     {
         currentHealth = maxHealth;
         isDamaged = false;
+        hasPackage = true;
+
+        if (packageVisual != null)
+        {
+            packageVisual.SetActive(true);
+        }
 
         if (healEffect != null)
         {
@@ -78,14 +95,24 @@ public class PackageController : MonoBehaviour
         return isDamaged;
     }
 
+    public bool HasPackage()
+    {
+        return hasPackage;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Waypoint"))
+        if (other.CompareTag("Waypoint") && hasPackage)
         {
             Waypoint waypoint = other.GetComponent<Waypoint>();
             if (waypoint != null && !isDamaged)
             {
                 waypoint.CollectWaypoint();
+
+                if (deliveryEffect != null)
+                {
+                    Instantiate(deliveryEffect, transform.position, Quaternion.identity);
+                }
 
                 GameObject houseObject = GameObject.FindGameObjectWithTag("House");
                 if (houseObject != null)
@@ -97,13 +124,28 @@ public class PackageController : MonoBehaviour
                     }
                 }
 
-                Destroy(gameObject);
+                hasPackage = false;
+                isDamaged = false;
+                currentHealth = 0;
+
+                if (packageVisual != null)
+                {
+                    packageVisual.SetActive(false);
+                }
+
+                if (ScoreManager.Instance != null)
+                {
+                    ScoreManager.Instance.packageHP = 0;
+                }
             }
         }
 
-        if (other.CompareTag("House") && isDamaged)
+        if (other.CompareTag("House"))
         {
-            HealPackage();
+            if (isDamaged || !hasPackage)
+            {
+                HealPackage();
+            }
         }
     }
 }

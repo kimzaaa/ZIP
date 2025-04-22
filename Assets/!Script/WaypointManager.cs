@@ -7,17 +7,14 @@ public class WaypointManager : MonoBehaviour
 
     [Header("Waypoint Settings")]
     [SerializeField] private GameObject waypointPrefab;
-    [SerializeField] private int waypointCount = 10;
-    [SerializeField] private float minDistance = 5f;
-    [SerializeField] private float maxDistance = 20f;
     [SerializeField] private float yPosition = 0.5f;
-    [SerializeField] private Vector2 spawnAreaSize = new Vector2(40f, 40f);
 
     [Header("Scoring")]
     [SerializeField] private int pointsPerWaypoint = 50;
     [SerializeField] private float timeBonus = 10f;
 
-    private List<GameObject> activeWaypoints = new List<GameObject>();
+    private List<Transform> waypointPositions = new List<Transform>();
+    private GameObject activeWaypoint;
     private Transform house;
 
     private void Awake()
@@ -35,39 +32,43 @@ public class WaypointManager : MonoBehaviour
     private void Start()
     {
         house = GameObject.FindGameObjectWithTag("House")?.transform;
-        GenerateWaypoints();
+
+        GameObject[] waypointObjects = GameObject.FindGameObjectsWithTag("Waypoint");
+        foreach (GameObject waypoint in waypointObjects)
+        {
+            waypointPositions.Add(waypoint.transform);
+        }
+
+        if (waypointPositions.Count == 0)
+        {
+            Debug.LogWarning("No preset waypoint positions found in the scene. Make sure to create GameObjects with tag 'WaypointPosition'");
+        }
     }
 
-    public void GenerateWaypoints()
+    public void GenerateWaypoint()
     {
         ClearWaypoints();
 
-        for (int i = 0; i < waypointCount; i++)
+        if (waypointPositions.Count > 0)
         {
-            SpawnWaypoint();
+            SpawnWaypointAtPresetPosition();
+        }
+        else
+        {
+            Debug.LogError("No waypoint positions available!");
         }
     }
 
-    private void SpawnWaypoint()
+    private void SpawnWaypointAtPresetPosition()
     {
-        Vector3 spawnPos;
-        int maxAttempts = 30;
-        int attempts = 0;
+        int randomIndex = Random.Range(0, waypointPositions.Count);
+        Transform selectedPosition = waypointPositions[randomIndex];
 
-        do
-        {
-            float x = Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2);
-            float z = Random.Range(-spawnAreaSize.y / 2, spawnAreaSize.y / 2);
-            spawnPos = new Vector3(x, yPosition, z);
-            attempts++;
-
-            if (attempts > maxAttempts)
-            {
-                Debug.LogWarning("Couldn't find valid waypoint position after " + maxAttempts + " attempts.");
-                return;
-            }
-        }
-        while (!IsValidPosition(spawnPos));
+        Vector3 spawnPos = new Vector3(
+            selectedPosition.position.x,
+            yPosition,
+            selectedPosition.position.z
+        );
 
         GameObject waypoint = Instantiate(waypointPrefab, spawnPos, Quaternion.identity);
         Waypoint waypointComponent = waypoint.GetComponent<Waypoint>();
@@ -78,43 +79,16 @@ public class WaypointManager : MonoBehaviour
             waypointComponent.SetTimeBonus(timeBonus);
         }
 
-        activeWaypoints.Add(waypoint);
-    }
-
-    private bool IsValidPosition(Vector3 position)
-    {
-        if (house != null && Vector3.Distance(house.position, position) < minDistance)
-        {
-            return false;
-        }
-
-        foreach (GameObject waypoint in activeWaypoints)
-        {
-            if (Vector3.Distance(waypoint.transform.position, position) < minDistance)
-            {
-                return false;
-            }
-        }
-
-        if (Physics.CheckSphere(position, 1f, LayerMask.GetMask("Obstacles")))
-        {
-            return false;
-        }
-
-        return true;
+        activeWaypoint = waypoint;
     }
 
     private void ClearWaypoints()
     {
-        foreach (GameObject waypoint in activeWaypoints)
+        if (activeWaypoint != null)
         {
-            if (waypoint != null)
-            {
-                Destroy(waypoint);
-            }
+            Destroy(activeWaypoint);
+            activeWaypoint = null;
         }
-
-        activeWaypoints.Clear();
     }
 
     public void WaypointCollected(Waypoint waypoint)
@@ -125,18 +99,29 @@ public class WaypointManager : MonoBehaviour
             ScoreManager.Instance.AddTime(waypoint.GetTimeBonus());
         }
 
-        // Remove from active list
-        GameObject waypointObj = waypoint.gameObject;
-        activeWaypoints.Remove(waypointObj);
+        activeWaypoint = null;
+    }
 
-        if (activeWaypoints.Count == 0)
-        {
-            GenerateWaypoints();
-        }
+    public bool HasActiveWaypoint()
+    {
+        return activeWaypoint != null;
+    }
+
+    public void ResetWaypoint()
+    {
+        ClearWaypoints();
     }
 
     public int GetRemainingWaypoints()
     {
-        return activeWaypoints.Count;
+        return activeWaypoint != null ? 1 : 0;
+    }
+
+    public void AddWaypointPosition(Transform position)
+    {
+        if (!waypointPositions.Contains(position))
+        {
+            waypointPositions.Add(position);
+        }
     }
 }
