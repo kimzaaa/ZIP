@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.UI;
-using System;
+using TMPro;
+using DG.Tweening;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -15,12 +15,17 @@ public class ScoreManager : MonoBehaviour
     public int maxPackageHP = 100;
     public float finalScore = 0f;
 
-    [Header("Multiplier Settings")]
-    public float airTimeMultiplier = 0.5f;
-    public float airTimeThreshold = 2.0f;
+    [Header("Airborne Scoring Settings")]
+    public float groundedScoreRate = 0.5f; // Score per second when grounded
+    public float baseAirScoreRate = 2.0f; // Base score per second when airborne
+    public float airTimeThreshold = 0.5f; // Minimum airtime to start scoring
+    public float comboInterval = 0.5f; // Time interval for combo increment
+    public float comboMultiplierIncrement = 0.5f; // Multiplier increase per combo stage
+    public float maxComboMultiplier = 5.0f; // Maximum combo multiplier
     private float currentAirTime = 0f;
+    private float timeSinceLastCombo = 0f;
+    private float currentComboMultiplier = 1.0f;
     private bool isCountingAirTime = false;
-    private bool airTimeAwarded = false;
 
     [Header("Rank Thresholds")]
     public float sRankThreshold = 500f;
@@ -29,16 +34,23 @@ public class ScoreManager : MonoBehaviour
     public float cRankThreshold = 150f;
 
     [Header("UI References")]
-    public Text scoreText;
-    public Text packageHPText;
-    public Text rankText;
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI packageHPText;
+    public TextMeshProUGUI rankText;
+    public TextMeshProUGUI comboText; // New UI element for combo display
     public GameObject gameOverPanel;
+
+    [Header("Animation Settings")]
+    public float scoreAnimationDuration = 0.5f;
+    public float pulseScale = 1.2f;
+    public float pulseDuration = 0.3f;
 
     [Header("Save System")]
     public string currentStage = "Stage1";
     private Dictionary<string, float> highScores = new Dictionary<string, float>();
 
     private PlayerController2 playerController;
+    private float previousScore = 0f;
 
     private void Awake()
     {
@@ -63,6 +75,9 @@ public class ScoreManager : MonoBehaviour
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
+        if (comboText != null)
+            comboText.text = "";
+
         UpdateUI();
     }
 
@@ -72,7 +87,7 @@ public class ScoreManager : MonoBehaviour
 
         if (playerController != null)
         {
-            CheckAirTime();
+            CheckAirTimeAndCombo();
         }
 
         CalculateScore();
@@ -80,7 +95,7 @@ public class ScoreManager : MonoBehaviour
         UpdateUI();
     }
 
-    private void CheckAirTime()
+    private void CheckAirTimeAndCombo()
     {
         bool isGrounded = playerController.GetComponent<Rigidbody>().linearVelocity.y == 0 ||
                           Physics.Raycast(playerController.transform.position, Vector3.down, 0.2f);
@@ -90,42 +105,126 @@ public class ScoreManager : MonoBehaviour
             if (!isCountingAirTime)
             {
                 isCountingAirTime = true;
-                airTimeAwarded = false;
                 currentAirTime = 0f;
+                timeSinceLastCombo = 0f;
+                currentComboMultiplier = 1.0f;
             }
 
             currentAirTime += Time.deltaTime;
+            timeSinceLastCombo += Time.deltaTime;
 
-            if (currentAirTime >= airTimeThreshold && !airTimeAwarded)
+            if (currentAirTime >= airTimeThreshold && timeSinceLastCombo >= comboInterval)
             {
-                float airTimeBonus = currentAirTime * airTimeMultiplier;
-                totalMultiplierBonus += airTimeBonus;
-                airTimeAwarded = true;
+                // Increment combo multiplier
+                currentComboMultiplier = Mathf.Min(
+                    currentComboMultiplier + comboMultiplierIncrement,
+                    maxComboMultiplier
+                );
+                timeSinceLastCombo = 0f;
 
-                ShowFloatingText($"+{airTimeBonus:F1} Air Time!", Color.cyan);
+                // Show combo feedback
+                if (comboText != null)
+                {
+                    comboText.text = $"Combo x{currentComboMultiplier:F1}";
+                    AnimateComboText();
+                }
+
+                ShowFloatingText($"Combo x{currentComboMultiplier:F1}!", Color.cyan);
             }
         }
         else
         {
-            isCountingAirTime = false;
+            if (isCountingAirTime)
+            {
+                isCountingAirTime = false;
+                currentComboMultiplier = 1.0f;
+                if (comboText != null)
+                    comboText.text = "";
+            }
         }
     }
 
     private void CalculateScore()
     {
-        finalScore = totalTime + (totalMultiplierBonus * packageHP);
+        bool isGrounded = playerController.GetComponent<Rigidbody>().linearVelocity.y == 0 ||
+                          Physics.Raycast(playerController.transform.position, Vector3.down, 0.2f);
+
+        if (isGrounded)
+        {
+            // Minimal score gain when grounded
+            finalScore += groundedScoreRate * Time.deltaTime;
+        }
+        else
+        {
+            // Higher score gain when airborne, scaled by combo multiplier
+            finalScore += baseAirScoreRate * currentComboMultiplier * Time.deltaTime;
+        }
+
+        // Incorporate package HP and multiplier bonuses
+        finalScore += totalMultiplierBonus * packageHP;
     }
 
     private void UpdateUI()
     {
         if (scoreText != null)
-            scoreText.text = $"Score: {finalScore:F0}";
+        {
+            if (Mathf.Abs(finalScore - previousScore) > 0.1f)
+            {
+                AnimateScoreText(previousScore, finalScore);
+                previousScore = finalScore;
+            }
+            else
+            {
+                scoreText.text = $"Score: {finalScore:F0}";
+            }
+        }
 
         if (packageHPText != null)
             packageHPText.text = $"Package HP: {packageHP}/{maxPackageHP}";
 
         if (rankText != null)
-            rankText.text = $"Current Rank: {GetCurrentRank()}";
+            rankText.text = $"Rank: {GetCurrentRank()}";
+    }
+
+    private void AnimateScoreText(float startScore, float endScore)
+    {
+        DOTween.Kill(scoreText);
+
+        scoreText.text = $"Score: {startScore:F0}";
+
+        Sequence sequence = DOTween.Sequence();
+
+        float currentValue = startScore;
+        sequence.Append(DOTween.To(
+            () => currentValue,
+            x =>
+            {
+                currentValue = x;
+                scoreText.text = $"Score: {currentValue:F0}";
+            },
+            endScore,
+            scoreAnimationDuration
+        ).SetEase(Ease.OutQuad));
+
+        sequence.Join(scoreText.transform.DOScale(pulseScale, pulseDuration)
+            .SetLoops(2, LoopType.Yoyo)
+            .SetEase(Ease.InOutSine));
+
+        sequence.Play();
+    }
+
+    private void AnimateComboText()
+    {
+        DOTween.Kill(comboText);
+
+        Sequence sequence = DOTween.Sequence();
+
+        sequence.Append(comboText.transform.DOScale(pulseScale * 1.2f, pulseDuration)
+            .SetEase(Ease.OutBack));
+        sequence.Append(comboText.transform.DOScale(1.0f, pulseDuration)
+            .SetEase(Ease.InSine));
+
+        sequence.Play();
     }
 
     public string GetCurrentRank()
@@ -232,6 +331,6 @@ public class ScoreManager : MonoBehaviour
 
     private void ShowFloatingText(string message, Color color)
     {
-        Debug.Log(message);
+        Debug.Log(message); // Replace with actual floating text implementation
     }
 }
