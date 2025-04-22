@@ -237,7 +237,8 @@ public class ScoreManager : MonoBehaviour
         if (packageHP <= 0)
         {
             packageHP = 0;
-            GameOver();
+            WaypointManager.Instance.ResetWaypoint();
+            //GameOver();
         }
 
         ShowFloatingText($"-{damage} Package HP!", Color.red);
