@@ -11,7 +11,6 @@ public class PlayerController2 : MonoBehaviour
 
     [Header("Basic Movement")]
     public float walkSpeed = 6.0f;
-    public float runSpeed = 12.0f;
     public float acceleration = 10.0f;
     public float deceleration = 20.0f;
     public float airControl = 0.5f;
@@ -28,8 +27,8 @@ public class PlayerController2 : MonoBehaviour
     public float downhillMultiplier = 1.3f;
     public float uphillMultiplier = 0.7f;
     public float slopeTransitionSmoothing = 10f;
-    public float highSpeedThreshold = 10.0f; // Speed at which sticking behavior is enhanced
-    public float highSpeedSnapMultiplier = 2.0f; // Multiplier for snap strength at high speeds
+    public float highSpeedThreshold = 10.0f;
+    public float highSpeedSnapMultiplier = 2.0f;
 
     [Header("Ground Detection")]
     public LayerMask groundLayers;
@@ -164,7 +163,7 @@ public class PlayerController2 : MonoBehaviour
                 float smoothingFactor = isGrounded ? (IsOnSlope() ? 8f : 12f) : 12f * airControl;
                 smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, targetDirection, Time.fixedDeltaTime * smoothingFactor);
 
-                float targetSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+                float targetSpeed = walkSpeed;
                 if (hasSpeedPowerUp)
                 {
                     targetSpeed *= speedPowerUpMultiplier;
@@ -182,7 +181,7 @@ public class PlayerController2 : MonoBehaviour
                     }
                     else if (directionDot < -0.1f)
                     {
-                        slopeFactor *= Mathf.Lerp(uphillMultiplier, 1.0f, rb.linearVelocity.magnitude / runSpeed);
+                        slopeFactor *= Mathf.Lerp(uphillMultiplier, 1.0f, rb.linearVelocity.magnitude / walkSpeed);
                     }
                     targetSpeed *= slopeFactor;
                 }
@@ -226,7 +225,6 @@ public class PlayerController2 : MonoBehaviour
         float sphereRadius = capsuleCollider.radius * 0.5f;
         float effectiveSnapDistance = snapDistance;
 
-        // Increase snap distance when moving downhill at high speeds
         if (IsOnSlope() && rb.linearVelocity.magnitude > highSpeedThreshold)
         {
             float downhillDot = Vector3.Dot(rb.linearVelocity.normalized, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
@@ -318,8 +316,7 @@ public class PlayerController2 : MonoBehaviour
             targetDirection.Normalize();
             smoothedMoveDirection = Vector3.Lerp(smoothedMoveDirection, targetDirection, Time.fixedDeltaTime * 12f);
 
-            float baseSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
-            float targetSpeed = baseSpeed * crouchSpeedMultiplier;
+            float targetSpeed = walkSpeed * crouchSpeedMultiplier;
             if (hasSpeedPowerUp)
             {
                 targetSpeed *= speedPowerUpMultiplier;
@@ -365,7 +362,6 @@ public class PlayerController2 : MonoBehaviour
             if (downhillDot > 0.1f)
             {
                 speedFactor = 1.0f + (downhillDot * (downhillMultiplier - 1.0f));
-                // Apply downward force to stick to the slope at high speeds
                 if (rb.linearVelocity.magnitude > highSpeedThreshold)
                 {
                     Vector3 downwardForce = -groundNormal * (rb.linearVelocity.magnitude * 0.5f * highSpeedSnapMultiplier);
