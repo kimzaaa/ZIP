@@ -24,7 +24,10 @@ public class DestructibleBoxManager : MonoBehaviour
 
     public void ConfigureBox(DestructibleBox box)
     {
-        box.SetProperties(damageToPackage, destroyEffect);
+        if (box.destroyEffect!=null)
+        {
+            box.SetProperties(damageToPackage, destroyEffect);
+        }
     }
 
     public void SpawnDestroyEffect(Vector3 position, Quaternion rotation)

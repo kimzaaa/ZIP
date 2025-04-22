@@ -57,7 +57,7 @@ public class PlayerController2 : MonoBehaviour
 
     private Vector3 moveDirection = Vector3.zero;
     private float currentSpeed = 0f;
-    private bool isGrounded = false;
+    public bool isGrounded = false;
     private float lastGroundedTime = 0f;
     private Vector3 groundNormal = Vector3.up;
     private float originalColliderHeight;

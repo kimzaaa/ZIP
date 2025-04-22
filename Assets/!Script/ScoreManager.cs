@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using DG.Tweening;
+using DG.Tweening.Core.Easing;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -97,8 +98,7 @@ public class ScoreManager : MonoBehaviour
 
     private void CheckAirTimeAndCombo()
     {
-        bool isGrounded = playerController.GetComponent<Rigidbody>().linearVelocity.y == 0 ||
-                          Physics.Raycast(playerController.transform.position, Vector3.down, 0.2f);
+        bool isGrounded = playerController.GetComponent<PlayerController2>().isGrounded;
 
         if (!isGrounded)
         {
@@ -115,14 +115,12 @@ public class ScoreManager : MonoBehaviour
 
             if (currentAirTime >= airTimeThreshold && timeSinceLastCombo >= comboInterval)
             {
-                // Increment combo multiplier
                 currentComboMultiplier = Mathf.Min(
                     currentComboMultiplier + comboMultiplierIncrement,
                     maxComboMultiplier
                 );
                 timeSinceLastCombo = 0f;
 
-                // Show combo feedback
                 if (comboText != null)
                 {
                     comboText.text = $"Combo x{currentComboMultiplier:F1}";
@@ -146,21 +144,17 @@ public class ScoreManager : MonoBehaviour
 
     private void CalculateScore()
     {
-        bool isGrounded = playerController.GetComponent<Rigidbody>().linearVelocity.y == 0 ||
-                          Physics.Raycast(playerController.transform.position, Vector3.down, 0.2f);
+        bool isGrounded = playerController.GetComponent<PlayerController2>().isGrounded;
 
         if (isGrounded)
         {
-            // Minimal score gain when grounded
             finalScore += groundedScoreRate * Time.deltaTime;
         }
         else
         {
-            // Higher score gain when airborne, scaled by combo multiplier
             finalScore += baseAirScoreRate * currentComboMultiplier * Time.deltaTime;
         }
 
-        // Incorporate package HP and multiplier bonuses
         finalScore += totalMultiplierBonus * packageHP;
     }
 
@@ -331,6 +325,20 @@ public class ScoreManager : MonoBehaviour
 
     private void ShowFloatingText(string message, Color color)
     {
-        Debug.Log(message); // Replace with actual floating text implementation
+        Debug.Log(message);
+    }
+    public void AddScore(int points)
+    {
+        finalScore += points;
+        ShowFloatingText($"+{points} Score!", Color.yellow);
+    }
+
+    public void AddTime(float seconds)
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddTime(seconds);
+            ShowFloatingText($"+{seconds:F1} Seconds!", Color.cyan);
+        }
     }
 }

@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class DestructibleBox : MonoBehaviour
 {
-    private int damageToPackage;
-    private GameObject destroyEffect;
+    public int damageToPackage;
+    public GameObject destroyEffect;
 
     private void Start()
     {
@@ -23,6 +23,12 @@ public class DestructibleBox : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
+            PackageController packageController = other.gameObject.GetComponent<PackageController>();
+            if (packageController != null)
+            {
+                packageController.TakeDamage(damageToPackage);
+            }
+
             if (ScoreManager.Instance != null)
             {
                 ScoreManager.Instance.DamagePackage(damageToPackage);
@@ -31,6 +37,13 @@ public class DestructibleBox : MonoBehaviour
             if (destroyEffect != null && DestructibleBoxManager.Instance != null)
             {
                 DestructibleBoxManager.Instance.SpawnDestroyEffect(transform.position, Quaternion.identity);
+            }
+
+            PlayerController2 playerController = other.gameObject.GetComponent<PlayerController2>();
+            if (playerController != null)
+            {
+                Vector3 knockbackDirection = (other.transform.position - transform.position).normalized;
+                playerController.ApplyExternalForce(knockbackDirection * 5f, ForceMode.Impulse);
             }
 
             Destroy(gameObject);
