@@ -156,7 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 753114421}
   pillarPrefab: {fileID: 4925127242435014471, guid: 5da71c536cc97ce408cd1d069fbcff95, type: 3}
-  terrain: {fileID: 0}
+  terrain: {fileID: 1374311568}
   spawnDistanceMin: 15
   spawnDistanceMax: 25
   pillarRiseSpeed: 10
@@ -1215,6 +1215,88 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5898197949227680822, guid: 838bec732043bea47b6a56661ccbf6e1, type: 3}
   m_PrefabInstance: {fileID: 1088289060}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1201787883
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1201787884}
+  - component: {fileID: 1201787885}
+  m_Layer: 0
+  m_Name: Point Grass Projector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1201787884
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201787883}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.036727965, y: 0.35403115, z: -0.11010486, w: 0.9280032}
+  m_LocalPosition: {x: -0.13, y: 3.08, z: 0.23}
+  m_LocalScale: {x: 1.0482596, y: 3.8549, z: 0.94093525}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1497038881}
+  m_LocalEulerAnglesHint: {x: 0.561, y: 41.698, z: -13.319}
+--- !u!114 &1201787885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201787883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb257b300d8d9d748bf8d0eeb8190b52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distSource: 0
+  baseMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  terrain: {fileID: 0}
+  terrainLayers: []
+  chunkCount: {x: 8, y: 8}
+  sceneFilters: []
+  bladeType: 2
+  multipleMeshes: 0
+  grassBladeMesh: {fileID: -7426583211642308163, guid: 002bf449675252849a29782b177a97f2, type: 3}
+  grassBladeMeshes:
+  - {fileID: 0}
+  meshDensityValues:
+  - 1
+  multipleMaterials: 0
+  material: {fileID: 2100000, guid: a6800ec55fd981a458a652a6c9eb55c1, type: 2}
+  materials:
+  - {fileID: 0}
+  shadowMode: 1
+  renderLayer:
+    m_LayerIndex: 0
+  pointCount: 20
+  multiplyByArea: 1
+  pointLODFactor: 1
+  randomiseSeed: 0
+  seed: 0
+  overwriteNormalDirection: 0
+  forcedNormal: {x: 0, y: 1, z: 0}
+  useDensity: 0
+  densityCutoff: 0.5
+  useLength: 0
+  lengthMapping: {x: 0, y: 1}
+  projectType: 1
+  projectMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  boundingBoxOffset:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!1 &1374311566
 GameObject:
   m_ObjectHideFlags: 0
@@ -1333,6 +1415,38 @@ MonoBehaviour:
   minHeight: 0
   maxHeight: 100
   alignToTerrainNormal: 1
+--- !u!1 &1497038880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1497038881}
+  m_Layer: 0
+  m_Name: Projector Demo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1497038881
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1497038880}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 195.05, y: 8.43, z: 148.49}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1201787884}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1545916468
 GameObject:
   m_ObjectHideFlags: 0
@@ -2032,3 +2146,4 @@ SceneRoots:
   - {fileID: 893701384}
   - {fileID: 1939801684}
   - {fileID: 753114421}
+  - {fileID: 1497038881}
