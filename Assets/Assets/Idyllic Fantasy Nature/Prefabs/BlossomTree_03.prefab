@@ -297,8 +297,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6513868927b68f241a42a4cedde63c1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageToPackage: 0
-  destroyEffect: {fileID: 0}
+  damageToPackage: 10
+  destroyEffect: {fileID: 8934740475878494008, guid: 37fde02800724574cada26c40850514d, type: 3}
+  explosiveShake: {fileID: 11400000, guid: 9b64e93c409dcc04c8f29009dd9675d2, type: 2}
 --- !u!1 &8615548168827872766
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,9 +1,11 @@
 using UnityEngine;
+using FirstGearGames.SmoothCameraShaker;
 
 public class DestructibleBox : MonoBehaviour
 {
     public int damageToPackage;
     public GameObject destroyEffect;
+    public ShakeData explosiveShake;
 
     private void Start()
     {
@@ -23,6 +25,8 @@ public class DestructibleBox : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
+            CameraShakerHandler.Shake(explosiveShake);
+            
             PackageController packageController = other.gameObject.GetComponent<PackageController>();
             if (packageController != null)
             {

@@ -123,3 +123,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damageToPackage: 20
   destroyEffect: {fileID: 8934740475878494008, guid: 37fde02800724574cada26c40850514d, type: 3}
+  explosiveShake: {fileID: 11400000, guid: 9b64e93c409dcc04c8f29009dd9675d2, type: 2}

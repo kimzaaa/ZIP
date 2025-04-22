@@ -360,5 +360,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6513868927b68f241a42a4cedde63c1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageToPackage: 0
-  destroyEffect: {fileID: 0}
+  damageToPackage: 10
+  destroyEffect: {fileID: 3245481260372359139, guid: da630ae8db0a59e4782664caf78d81b4, type: 3}
+  explosiveShake: {fileID: 11400000, guid: 9b64e93c409dcc04c8f29009dd9675d2, type: 2}
