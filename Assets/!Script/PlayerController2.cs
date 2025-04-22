@@ -136,11 +136,11 @@ public class PlayerController2 : MonoBehaviour
             ActivateSkill();
         }
 
-        if (Input.GetKeyDown(KeyCode.C) && isGrounded)
+        if (isCrouching == false)
         {
             isCrouching = !isCrouching;
-            AdjustColliderForCrouch(isCrouching);
         }
+        else AdjustColliderForCrouch(isCrouching);
 
         UpdateAnimator();
     }
