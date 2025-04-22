@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - House
+  - Waypoint
+  - JumpPowerUp
+  - SpeedPowerUp
   layers:
   - Default
   - TransparentFX
