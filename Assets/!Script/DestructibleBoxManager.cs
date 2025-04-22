@@ -24,18 +24,15 @@ public class DestructibleBoxManager : MonoBehaviour
 
     public void ConfigureBox(DestructibleBox box)
     {
-        if (box.destroyEffect!=null)
-        {
-            box.SetProperties(damageToPackage, destroyEffect);
-        }
+        box.SetProperties(damageToPackage, box.destroyEffect != null ? box.destroyEffect : destroyEffect);
     }
 
-    public void SpawnDestroyEffect(Vector3 position, Quaternion rotation)
+    public void SpawnDestroyEffect(Vector3 position, Quaternion rotation, GameObject effect)
     {
-        if (destroyEffect != null)
+        if (effect != null)
         {
-            GameObject effect = Instantiate(destroyEffect, position, rotation);
-            Destroy(effect, effectDestroyDelay);
+            GameObject spawnedEffect = Instantiate(effect, position, rotation);
+            Destroy(spawnedEffect, effectDestroyDelay);
         }
     }
 }

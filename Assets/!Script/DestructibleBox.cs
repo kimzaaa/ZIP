@@ -34,9 +34,9 @@ public class DestructibleBox : MonoBehaviour
                 ScoreManager.Instance.DamagePackage(damageToPackage);
             }
 
-            if (destroyEffect != null && DestructibleBoxManager.Instance != null)
+            if (DestructibleBoxManager.Instance != null)
             {
-                DestructibleBoxManager.Instance.SpawnDestroyEffect(transform.position, Quaternion.identity);
+                DestructibleBoxManager.Instance.SpawnDestroyEffect(transform.position, Quaternion.identity, destroyEffect);
             }
 
             PlayerController2 playerController = other.gameObject.GetComponent<PlayerController2>();

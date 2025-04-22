@@ -86,6 +86,18 @@ public class PackageController : MonoBehaviour
             if (waypoint != null && !isDamaged)
             {
                 waypoint.CollectWaypoint();
+
+                GameObject houseObject = GameObject.FindGameObjectWithTag("House");
+                if (houseObject != null)
+                {
+                    House house = houseObject.GetComponent<House>();
+                    if (house != null)
+                    {
+                        house.PackageDelivered();
+                    }
+                }
+
+                Destroy(gameObject);
             }
         }
 
