@@ -756,8 +756,9 @@ GameObject:
   - component: {fileID: 404427711}
   - component: {fileID: 404427710}
   - component: {fileID: 404427709}
+  - component: {fileID: 404427716}
   m_Layer: 0
-  m_Name: Capsule
+  m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -969,6 +970,28 @@ Transform:
   - {fileID: 1271562011}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 35.275, z: 0}
+--- !u!114 &404427716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404427708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11639ed274c7e9b44ab0304f9d0fc01d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 404427715}
+  pillarPrefab: {fileID: 4925127242435014471, guid: 5da71c536cc97ce408cd1d069fbcff95, type: 3}
+  terrain: {fileID: 1374311568}
+  spawnDistanceMin: 15
+  spawnDistanceMax: 25
+  pillarRiseSpeed: 10
+  pillarHeightPercent: 0.75
+  pillarStartDepth: 6
+  spawnIntervalEarly: 3
+  spawnIntervalLate: 2
 --- !u!4 &997647500 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5898197949227680822, guid: 838bec732043bea47b6a56661ccbf6e1, type: 3}
