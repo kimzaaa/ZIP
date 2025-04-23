@@ -63,7 +63,7 @@ public class EnemyPlayerDetection : MonoBehaviour
             Rigidbody rb = bullet.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = direction * bulletSpeed;
+                rb.linearVelocity = direction * bulletSpeed;
             }
             else
             {
