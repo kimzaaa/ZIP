@@ -7,7 +7,7 @@ public class TerrainPrefabSpawner : MonoBehaviour
     [SerializeField] private int numberOfPrefabs = 50;
     [SerializeField] private float minHeight = 0f;
     [SerializeField] private float maxHeight = 100f;
-    [SerializeField] private bool alignToTerrainNormal = true;
+    [SerializeField] private float yOffset = 0f; // Optional manual offset for fine-tuning
 
     void Start()
     {
@@ -41,21 +41,27 @@ public class TerrainPrefabSpawner : MonoBehaviour
             if (y < minHeight || y > maxHeight)
                 continue;
 
+            // Base spawn position
             Vector3 spawnPos = new Vector3(x + terrainPos.x, y + terrainPos.y, z + terrainPos.z);
 
             // Randomly select a prefab
             GameObject prefab = prefabsToSpawn[Random.Range(0, prefabsToSpawn.Length)];
 
-            // Calculate rotation
-            Quaternion rotation = Quaternion.identity;
-            if (alignToTerrainNormal)
+            // Calculate the prefab's bottom offset (assuming pivot is at the bottom)
+            float prefabBottomOffset = 0f;
+            Renderer renderer = prefab.GetComponentInChildren<Renderer>();
+            if (renderer != null)
             {
-                Vector3 normal = terrainData.GetInterpolatedNormal(x / terrainWidth, z / terrainLength);
-                rotation = Quaternion.FromToRotation(Vector3.up, normal);
+                // Use the renderer's bounds to find the bottom relative to the pivot
+                Vector3 localBottom = renderer.bounds.min;
+                prefabBottomOffset = -localBottom.y; // Positive offset to move prefab up
             }
 
-            // Add random rotation around Y axis
-            rotation *= Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+            // Adjust spawn position to place prefab's bottom at terrain height
+            spawnPos.y += prefabBottomOffset + yOffset;
+
+            // Set rotation to be upright (aligned with world up) with random Y rotation
+            Quaternion rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 
             // Instantiate prefab
             Instantiate(prefab, spawnPos, rotation, transform);

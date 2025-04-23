@@ -6,6 +6,7 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance;
     
     public Sound[] musicSounds, sfxSounds;
+    public Sound[] FootstepSounds, sfxFootstepSounds;
     public AudioSource musicSource, sfxSource;
 
     private void Awake()
@@ -25,17 +26,17 @@ public class AudioManager : MonoBehaviour
 
     public void PlayMusic(string name)
     {
-       Sound s = Array.Find(musicSounds, sound => sound.name == name);
+        Sound s = Array.Find(musicSounds, sound => sound.name == name);
 
-       if (s == null)
-       {
-           Debug.Log("sound doesn't exist");
-       }
-       else
-       {
-           musicSource.clip = s.clip;
-           musicSource.Play();
-       }
+        if (s == null)
+        {
+            Debug.Log("sound doesn't exist");
+        }
+        else
+        {
+            musicSource.clip = s.clip;
+            musicSource.Play();
+        }
     }
     
     public void PlaySFX(string name)
@@ -52,10 +53,32 @@ public class AudioManager : MonoBehaviour
         }  
     }
 
+    public void PlayRandomFootstep()
+    {
+        if (FootstepSounds.Length == 0)
+        {
+            Debug.Log("No footstep sounds available");
+            return;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, FootstepSounds.Length);
+        Sound s = FootstepSounds[randomIndex];
+
+        if (s == null || s.clip == null)
+        {
+            Debug.Log("Invalid footstep sound at index: " + randomIndex);
+        }
+        else
+        {
+            sfxSource.PlayOneShot(s.clip,0.35f);
+        }
+    }
+
     public void ToggleMusic()
     {
         musicSource.mute = !musicSource.mute;
     }
+
     public void ToggleSFX()
     {
         sfxSource.mute = !sfxSource.mute;
@@ -65,6 +88,7 @@ public class AudioManager : MonoBehaviour
     {
         musicSource.volume = volume;
     }
+
     public void SFXVolume(float volume)
     {
         sfxSource.volume = volume;

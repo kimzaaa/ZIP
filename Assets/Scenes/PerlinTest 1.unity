@@ -1173,6 +1173,7 @@ MonoBehaviour:
   momentumPreservationFactor: 0.8
   landingShakeData: {fileID: 11400000, guid: 426fe4dcad19a2344a5585b6fb18728d, type: 2}
   flyingShakeData: {fileID: 11400000, guid: 9af0c22d62add0545a3513681d33ac79, type: 2}
+  footstepInterval: 0.25
   isGrounded: 0
 --- !u!114 &404427710
 MonoBehaviour:
@@ -3070,6 +3071,14 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: c3e04fe63cd94bb40a9a53b91c39baad, type: 3}
   - name: ExplodeSFX
     clip: {fileID: 8300000, guid: 835dbde20b295764ab5dfd5dd933eea5, type: 3}
+  FootstepSounds:
+  - name: 
+    clip: {fileID: 8300000, guid: 0a71141947a909441a81a59f7d5f18f9, type: 3}
+  - name: 
+    clip: {fileID: 8300000, guid: 9f99a01c1e35cf94b9d46b6b68f4c928, type: 3}
+  - name: 
+    clip: {fileID: 8300000, guid: efb1c4bb3fb78994b849a33daafbf3a0, type: 3}
+  sfxFootstepSounds: []
   musicSource: {fileID: 219329047}
   sfxSource: {fileID: 635088273}
 --- !u!4 &1413795071

@@ -60,6 +60,10 @@ public class PlayerController2 : MonoBehaviour
     public ShakeData landingShakeData;
     public ShakeData flyingShakeData;
     // public GameObject speedLineParticle;
+
+    [Header("Footstep Sounds")]
+    public float footstepInterval = 0.5f; // Time between footstep sounds
+    private float footstepTimer = 0f;
     
 
     private Vector3 moveDirection = Vector3.zero;
@@ -225,95 +229,110 @@ public class PlayerController2 : MonoBehaviour
         HandleMovement();
     }
 
-void CheckGrounded()
-{
-    Vector3 rayStart = transform.position + Vector3.up * 0.1f;
-    RaycastHit hit;
-
-    float sphereRadius = capsuleCollider.radius * 0.5f;
-    float effectiveSnapDistance = snapDistance;
-
-    if (IsOnSlope() && rb.linearVelocity.magnitude > highSpeedThreshold)
+    void CheckGrounded()
     {
-        float downhillDot = Vector3.Dot(rb.linearVelocity.normalized, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
-        if (downhillDot > 0.1f)
-        {
-            effectiveSnapDistance *= highSpeedSnapMultiplier;
-        }
-    }
+        Vector3 rayStart = transform.position + Vector3.up * 0.1f;
+        RaycastHit hit;
 
-    if (Physics.SphereCast(rayStart, sphereRadius, Vector3.down, out hit, groundCheckDistance + 0.1f, groundLayers))
-    {
-        if (!wasGrounded && rb.linearVelocity.y <= 0) // Check for landing (not grounded -> grounded, falling or stationary)
-        {
-            CameraShakerHandler.Shake(landingShakeData); // Trigger landing shake
-            AudioManager.Instance.PlaySFX("LandingSFX"); // Play landing sound
-        }
+        float sphereRadius = capsuleCollider.radius * 0.5f;
+        float effectiveSnapDistance = snapDistance;
 
-        isGrounded = true;
-        groundNormal = hit.normal;
-        lastGroundedTime = Time.time;
-
-        if (remainingJumps < maxJumps)
+        if (IsOnSlope() && rb.linearVelocity.magnitude > highSpeedThreshold)
         {
-            remainingJumps = maxJumps;
-        }
-
-        float distanceToGround = hit.distance - 0.1f;
-        if (distanceToGround > 0 && distanceToGround < effectiveSnapDistance)
-        {
-            float snapStrength = isCrouching ? crouchSnapStrength : 10f;
-            if (rb.linearVelocity.magnitude > highSpeedThreshold && IsOnSlope())
+            float downhillDot = Vector3.Dot(rb.linearVelocity.normalized, Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized);
+            if (downhillDot > 0.1f)
             {
-                snapStrength *= highSpeedSnapMultiplier;
+                effectiveSnapDistance *= highSpeedSnapMultiplier;
             }
-            Vector3 targetPosition = transform.position - Vector3.up * distanceToGround;
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.fixedDeltaTime * snapStrength);
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         }
-    }
-    else
-    {
-        isGrounded = false;
-        CameraShakerHandler.Shake(flyingShakeData);
 
-        // Play flying sound once when becoming airborne
-        // if (wasGrounded) // Check for transition from grounded to not grounded
-        // {
-        //     AudioManager.Instance.PlaySFX("FlyingSFX"); // Play flying sound once
-        // }
-    }
-
-    if (!isGrounded)
-    {
-        if (Physics.SphereCast(transform.position + Vector3.up * 0.5f, sphereRadius, Vector3.down, out hit, groundCheckDistance + effectiveSnapDistance, groundLayers))
+        if (Physics.SphereCast(rayStart, sphereRadius, Vector3.down, out hit, groundCheckDistance + 0.1f, groundLayers))
         {
-            float distanceToGround = hit.distance - 0.5f;
-            if (distanceToGround < effectiveSnapDistance)
+            if (!wasGrounded && rb.linearVelocity.y <= 0) // Check for landing
+            {
+                CameraShakerHandler.Shake(landingShakeData);
+                AudioManager.Instance.PlaySFX("LandingSFX");
+            }
+
+            isGrounded = true;
+            groundNormal = hit.normal;
+            lastGroundedTime = Time.time;
+
+            if (remainingJumps < maxJumps)
+            {
+                remainingJumps = maxJumps;
+            }
+
+            float distanceToGround = hit.distance - 0.1f;
+            if (distanceToGround > 0 && distanceToGround < effectiveSnapDistance)
             {
                 float snapStrength = isCrouching ? crouchSnapStrength : 10f;
-                if (rb.linearVelocity.magnitude > highSpeedThreshold && Vector3.Angle(hit.normal, Vector3.up) <= slopeLimit)
+                if (rb.linearVelocity.magnitude > highSpeedThreshold && IsOnSlope())
                 {
                     snapStrength *= highSpeedSnapMultiplier;
                 }
-                Vector3 targetPosition = new Vector3(transform.position.x, hit.point.y + capsuleCollider.height / 2, transform.position.z);
+                Vector3 targetPosition = transform.position - Vector3.up * distanceToGround;
                 transform.position = Vector3.Lerp(transform.position, targetPosition, Time.fixedDeltaTime * snapStrength);
-
-                if (!wasGrounded && rb.linearVelocity.y <= 0) // Check for landing in secondary check
-                {
-                    CameraShakerHandler.Shake(landingShakeData); // Trigger landing shake
-                    AudioManager.Instance.PlaySFX("LandingSFX"); // Play landing sound
-                }
-
-                isGrounded = true;
-                groundNormal = hit.normal;
                 rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
             }
         }
-    }
+        else
+        {
+            isGrounded = false;
+            CameraShakerHandler.Shake(flyingShakeData);
 
-    wasGrounded = isGrounded; // Update previous grounded state
-}
+            // Play flying sound once when becoming airborne
+            // if (wasGrounded)
+            // {
+            //     AudioManager.Instance.PlaySFX("FlyingSFX");
+            // }
+        }
+
+        if (!isGrounded)
+        {
+            if (Physics.SphereCast(transform.position + Vector3.up * 0.5f, sphereRadius, Vector3.down, out hit, groundCheckDistance + effectiveSnapDistance, groundLayers))
+            {
+                float distanceToGround = hit.distance - 0.5f;
+                if (distanceToGround < effectiveSnapDistance)
+                {
+                    float snapStrength = isCrouching ? crouchSnapStrength : 10f;
+                    if (rb.linearVelocity.magnitude > highSpeedThreshold && Vector3.Angle(hit.normal, Vector3.up) <= slopeLimit)
+                    {
+                        snapStrength *= highSpeedSnapMultiplier;
+                    }
+                    Vector3 targetPosition = new Vector3(transform.position.x, hit.point.y + capsuleCollider.height / 2, transform.position.z);
+                    transform.position = Vector3.Lerp(transform.position, targetPosition, Time.fixedDeltaTime * snapStrength);
+
+                    if (!wasGrounded && rb.linearVelocity.y <= 0)
+                    {
+                        CameraShakerHandler.Shake(landingShakeData);
+                        AudioManager.Instance.PlaySFX("LandingSFX");
+                    }
+
+                    isGrounded = true;
+                    groundNormal = hit.normal;
+                    rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                }
+            }
+        }
+
+        // Footstep sound logic
+        if (isGrounded && rb.linearVelocity.magnitude > 0.1f) // Check if grounded and moving
+        {
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0)
+            {
+                AudioManager.Instance.PlayRandomFootstep();
+                footstepTimer = footstepInterval; // Reset timer
+            }
+        }
+        else
+        {
+            footstepTimer = 0; // Reset timer when not grounded or not moving
+        }
+
+        wasGrounded = isGrounded; // Update previous grounded state
+    }
 
     void DetectSlope()
     {
