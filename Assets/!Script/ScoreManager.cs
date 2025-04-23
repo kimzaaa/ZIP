@@ -38,7 +38,7 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI packageHPText;
     public TextMeshProUGUI rankText;
-    public TextMeshProUGUI comboText; // New UI element for combo display
+    public TextMeshProUGUI comboText;
     public GameObject gameOverPanel;
 
     [Header("Animation Settings")]

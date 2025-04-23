@@ -110,26 +110,23 @@ public class WaypointManager : MonoBehaviour
 
     private Vector3 GetPositionAndNormalOnTerrain(Vector3 centerPos, out Vector3 terrainNormal)
     {
-        // Generate random offset within spawnRadius
         Vector2 randomCircle = Random.insideUnitCircle * spawnRadius;
         Vector3 potentialPos = new Vector3(
             centerPos.x + randomCircle.x,
-            terrain.transform.position.y + terrain.terrainData.size.y + 10f, // Start above terrain
+            terrain.transform.position.y + terrain.terrainData.size.y + 10f,
             centerPos.z + randomCircle.y
         );
 
-        // Raycast down to find terrain surface
         Ray ray = new Ray(potentialPos, Vector3.down);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, terrain.terrainData.size.y + 20f, LayerMask.GetMask("Terrain")))
         {
             terrainNormal = hit.normal;
-            return new Vector3(hit.point.x, hit.point.y + 0.1f, hit.point.z); // Slightly above surface
+            return new Vector3(hit.point.x, hit.point.y + 0.1f, hit.point.z);
         }
 
-        // Fallback: Sample terrain height
         float terrainHeight = terrain.SampleHeight(new Vector3(potentialPos.x, 0, potentialPos.z)) + terrain.transform.position.y;
-        terrainNormal = Vector3.up; // Default normal if raycast fails
+        terrainNormal = Vector3.up;
         return new Vector3(potentialPos.x, terrainHeight + 0.1f, potentialPos.z);
     }
 

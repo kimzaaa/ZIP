@@ -27,7 +27,7 @@ public class DestructibleBox : MonoBehaviour
         {
             CameraShakerHandler.Shake(explosiveShake);
             AudioManager.Instance.PlaySFX("ExplodeSFX");
-            
+
             PackageController packageController = other.gameObject.GetComponent<PackageController>();
             if (packageController != null)
             {
@@ -50,8 +50,8 @@ public class DestructibleBox : MonoBehaviour
                 Vector3 knockbackDirection = (other.transform.position - transform.position).normalized;
                 playerController.ApplyExternalForce(knockbackDirection * 5f, ForceMode.Impulse);
             }
-
-            Destroy(gameObject);
+            
+            PoolManager.Instance.ReturnObject(gameObject);
         }
     }
 }

@@ -3355,7 +3355,7 @@ GameObject:
   - component: {fileID: 1377111532}
   - component: {fileID: 1377111531}
   m_Layer: 0
-  m_Name: GameManager (1)
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3394,6 +3394,50 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 234.8, y: 3.4, z: 87.1}
   m_LocalScale: {x: 7.6453376, y: 7.6453376, z: 7.6453376}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1392452237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1392452239}
+  - component: {fileID: 1392452238}
+  m_Layer: 0
+  m_Name: PoolManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1392452238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1392452237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0e331219530a2242907e83d09c91dc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1392452239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1392452237}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 758.60297, y: 52.20237, z: 346.9177}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -5244,7 +5288,7 @@ GameObject:
   - component: {fileID: 1975554889}
   - component: {fileID: 1975554888}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: DestructibleBoxManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5263,7 +5307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageToPackage: 10
-  destroyEffect: {fileID: 3245481260372359139, guid: da630ae8db0a59e4782664caf78d81b4, type: 3}
+  destroyEffect: {fileID: 0}
   effectDestroyDelay: 5
 --- !u!4 &1975554889
 Transform:
@@ -6044,9 +6088,10 @@ SceneRoots:
   - {fileID: 404427715}
   - {fileID: 1975554889}
   - {fileID: 1413795071}
-  - {fileID: 1897324658}
-  - {fileID: 1377111532}
+  - {fileID: 1392452239}
   - {fileID: 1398292251}
+  - {fileID: 1377111532}
+  - {fileID: 1897324658}
   - {fileID: 1468799994}
   - {fileID: 1144840082}
   - {fileID: 532518944}
