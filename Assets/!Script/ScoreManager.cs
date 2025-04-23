@@ -177,7 +177,7 @@ public class ScoreManager : MonoBehaviour
             packageHPText.text = $"Package HP: {packageHP}/{maxPackageHP}";
 
         if (rankText != null)
-            rankText.text = $"Rank: {GetCurrentRank()}";
+            rankText.text = $"{GetCurrentRank()}";
     }
 
     private void AnimateScoreText(float startScore, float endScore)

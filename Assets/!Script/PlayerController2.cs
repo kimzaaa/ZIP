@@ -135,10 +135,10 @@ public class PlayerController2 : MonoBehaviour
             jumpPressed = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            ActivateSkill();
-        }
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{
+        //    ActivateSkill();
+        //}
 
         if (isCrouching == false)
         {

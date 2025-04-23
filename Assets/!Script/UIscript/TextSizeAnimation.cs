@@ -23,6 +23,10 @@ public class TextSizeAnimation : MonoBehaviour
 
     void OnEnable()
     {
+        // Unlock and show the cursor
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         if (textMeshPro == null)
         {
             textMeshPro = GetComponent<TMP_Text>();

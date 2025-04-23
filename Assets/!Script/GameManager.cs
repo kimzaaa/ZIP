@@ -125,12 +125,12 @@ public class GameManager : MonoBehaviour
 
             if (finalScoreText != null && ScoreManager.Instance != null)
             {
-                finalScoreText.text = "Final Score: " + Mathf.FloorToInt(ScoreManager.Instance.finalScore);
+                finalScoreText.text = "Score: " + Mathf.FloorToInt(ScoreManager.Instance.finalScore);
             }
 
             if (finalRankText != null && ScoreManager.Instance != null)
             {
-                finalRankText.text = "Rank: " + ScoreManager.Instance.GetCurrentRank();
+                finalRankText.text = ScoreManager.Instance.GetCurrentRank();
             }
         }
 
