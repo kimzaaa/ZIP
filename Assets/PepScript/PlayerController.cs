@@ -476,8 +476,11 @@ public class PlayerController : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position + Vector3.up * 0.5f, moveDirection * slopeRayLength);
 
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position + Vector3.down * (groundCheckDistance + 0.1f), capsuleCollider.radius * 0.5f);
+            if (capsuleCollider != null)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(transform.position + Vector3.down * (groundCheckDistance + 0.1f), capsuleCollider.radius * 0.5f);
+            }
         }
     }
 }

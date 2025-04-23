@@ -17,6 +17,7 @@ public class House : MonoBehaviour
     {
         GameObject existingPackage = GameObject.FindGameObjectWithTag("Package");
         hasPackage = (existingPackage != null);
+        SpawnNewPackage();
     }
 
     void Update()
@@ -45,7 +46,7 @@ public class House : MonoBehaviour
         if (packagePrefab != null)
         {
             Vector3 position = spawnPoint != null ? spawnPoint.position : transform.position + new Vector3(0, 1f, 0);
-            Quaternion rotation = Quaternion.identity;
+            Quaternion rotation = Quaternion.Euler(-45, 0, -90);
 
             Instantiate(packagePrefab, position, rotation);
             hasPackage = true;
@@ -75,9 +76,17 @@ public class House : MonoBehaviour
                 }
             }
 
-            if (!hasPackage && !isPackageDelivered)
+            // Player picks up the package
+            if (hasPackage)
             {
-                SpawnNewPackage();
+                hasPackage = false;
+
+                // Destroy the existing package object (optional: you could store it as a reference)
+                GameObject existingPackage = GameObject.FindGameObjectWithTag("Package");
+                if (existingPackage != null)
+                {
+                    Destroy(existingPackage);
+                }
             }
 
             if (WaypointManager.Instance != null && !WaypointManager.Instance.HasActiveWaypoint())
@@ -86,6 +95,7 @@ public class House : MonoBehaviour
             }
         }
     }
+
 
     public bool HasPackage()
     {
