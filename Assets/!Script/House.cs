@@ -67,7 +67,7 @@ public class House : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PackageController packageController = other.GetComponent<PackageController>();
-            if (packageController != null && packageController.IsDamaged())
+            if (packageController != null)
             {
                 packageController.HealPackage();
                 if (healEffect != null)

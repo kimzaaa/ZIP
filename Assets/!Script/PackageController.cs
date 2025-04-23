@@ -26,6 +26,9 @@ public class PackageController : MonoBehaviour
 
     private void Start()
     {
+        //Start with no package
+        if (packageVisual.activeSelf) packageVisual.SetActive(false);
+        
         if (ScoreManager.Instance != null)
         {
             ScoreManager.Instance.packageHP = currentHealth;
@@ -56,6 +59,8 @@ public class PackageController : MonoBehaviour
             currentHealth = 0;
             isDamaged = true;
 
+            //Package visual on the back
+            if (packageVisual.activeSelf) packageVisual.SetActive(false);
             if (damageEffect != null)
             {
                 Instantiate(damageEffect, transform.position, Quaternion.identity);
@@ -73,10 +78,11 @@ public class PackageController : MonoBehaviour
         currentHealth = maxHealth;
         isDamaged = false;
         hasPackage = true;
-
+        
         if (packageVisual != null)
         {
             packageVisual.SetActive(true);
+            
         }
 
         if (healEffect != null)
