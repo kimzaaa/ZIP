@@ -1376,7 +1376,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 404427715}
-  pillarPrefab: {fileID: 1367126651707189140, guid: 5dc5bd955393bc5469b7b45ea6be2782, type: 3}
+  pillarPrefabs:
+  - {fileID: 1367126651707189140, guid: 5dc5bd955393bc5469b7b45ea6be2782, type: 3}
+  - {fileID: 4925127242435014471, guid: 5da71c536cc97ce408cd1d069fbcff95, type: 3}
   terrain: {fileID: 1374311568}
   spawnDistanceMin: 15
   spawnDistanceMax: 25
@@ -3404,7 +3406,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 60e44292038a89443a3300929577fe72, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b9163daf0e0917c46baf4bf6b962d92e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

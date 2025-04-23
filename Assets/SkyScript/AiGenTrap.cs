@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic; // Added for List support
 
 public class AiGenTrap : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class AiGenTrap : MonoBehaviour
     public Transform player;
 
     [Header("Trap Settings")]
-    public GameObject pillarPrefab;
+    public List<GameObject> pillarPrefabs; // Changed to List of prefabs
     public Terrain terrain;
     public float spawnDistanceMin = 15f;
     public float spawnDistanceMax = 25f;
@@ -37,9 +38,18 @@ public class AiGenTrap : MonoBehaviour
             yield return new WaitForSeconds(interval);
 
             Vector3 spawnPosition = CalculateSpawnPosition();
-            if (spawnPosition != Vector3.zero)
+            if (spawnPosition != Vector3.zero && pillarPrefabs.Count > 0)
             {
-                GameObject pillar = Instantiate(pillarPrefab, spawnPosition, Quaternion.identity);
+                // Select random prefab from the list
+                GameObject selectedPrefab = pillarPrefabs[Random.Range(0, pillarPrefabs.Count)];
+                GameObject pillar = Instantiate(selectedPrefab, spawnPosition, Quaternion.identity);
+                // Make pillar face the player
+                Vector3 directionToPlayer = (player.position - spawnPosition).normalized;
+                directionToPlayer.y = 0; // Keep rotation on horizontal plane
+                if (directionToPlayer != Vector3.zero)
+                {
+                    pillar.transform.rotation = Quaternion.LookRotation(directionToPlayer);
+                }
                 StartCoroutine(RaisePillar(pillar));
                 StartCoroutine(DestroyPillar(pillar));
             }
