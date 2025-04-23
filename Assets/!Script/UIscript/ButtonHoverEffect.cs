@@ -42,14 +42,14 @@ public class ButtonHoverEffect : MonoBehaviour
         // Increase text size
         if (buttonText != null)
             buttonText.fontSize = originalTextSize + textSizeIncrease;
-
-        // Increase image vertical scale (up and down)
-        if (buttonImage != null)
             buttonImage.transform.localScale = new Vector3(
                 originalImageScale.x,
                 originalImageScale.y + imageScaleIncrease,
                 originalImageScale.z
             );
+
+        // Increase image vertical scale (up and down)
+        
     }
 
     void OnHoverExit()
@@ -57,9 +57,9 @@ public class ButtonHoverEffect : MonoBehaviour
         // Revert text size
         if (buttonText != null)
             buttonText.fontSize = originalTextSize;
-
-        // Revert image scale
-        if (buttonImage != null)
             buttonImage.transform.localScale = originalImageScale;
+        // Revert image scale
+        
+            
     }
 }
