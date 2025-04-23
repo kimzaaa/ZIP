@@ -9,12 +9,10 @@ public class PerlinNoise : MonoBehaviour
     public float offsetX = 100f; // Offset for X coordinate
     public float offsetY = 100f; // Offset for Y coordinate
     void Start(){
-        offsetX = Random.Range(0f, 99999f); // Randomize offset for X coordinate
-        offsetY = Random.Range(0f, 99999f); // Randomize offset for Y coordinate
-    }
-    void Update(){
         Renderer renderer = GetComponent<Renderer>();
         renderer.material.mainTexture = GeneteratedTexture();
+        offsetX = Random.Range(0f, 99999f); // Randomize offset for X coordinate
+        offsetY = Random.Range(0f, 99999f); // Randomize offset for Y coordinate
     }
 
     Texture2D GeneteratedTexture(){
