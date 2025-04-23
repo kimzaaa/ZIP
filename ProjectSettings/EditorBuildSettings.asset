@@ -5,9 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MapTest.unity
     guid: 0760567e71bb3c843858754365c1af26
+  - enabled: 1
+    path: Assets/Scenes/UiMainManu.unity
+    guid: f02691c32c217db4698f5e2e973e5c02
+  - enabled: 1
+    path: Assets/Scenes/PerlinTest 1.unity
+    guid: c03a61b8d028b3243abca3a2333d6b60
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
