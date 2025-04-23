@@ -80,7 +80,7 @@ public class House : MonoBehaviour
             if (hasPackage)
             {
                 hasPackage = false;
-
+                AudioManager.Instance.PlaySFX("PackageCollectSFX");
                 // Destroy the existing package object (optional: you could store it as a reference)
                 GameObject existingPackage = GameObject.FindGameObjectWithTag("Package");
                 if (existingPackage != null)

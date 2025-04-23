@@ -6,7 +6,7 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance;
     
     public Sound[] musicSounds, sfxSounds;
-    public Sound[] FootstepSounds, sfxFootstepSounds;
+    public Sound[] FootstepSounds, packageSentSound;
     public AudioSource musicSource, sfxSource;
 
     private void Awake()
@@ -71,6 +71,27 @@ public class AudioManager : MonoBehaviour
         else
         {
             sfxSource.PlayOneShot(s.clip,0.35f);
+        }
+    }
+    
+    public void PlayRandomPackageSentSound()
+    {
+        if (packageSentSound.Length == 0)
+        {
+            Debug.Log("No sent sounds available");
+            return;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, packageSentSound.Length);
+        Sound s = packageSentSound[randomIndex];
+
+        if (s == null || s.clip == null)
+        {
+            Debug.Log("Invalid packageSent sound at index: " + randomIndex);
+        }
+        else
+        {
+            sfxSource.PlayOneShot(s.clip);
         }
     }
 

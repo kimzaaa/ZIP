@@ -148,6 +148,8 @@ public class PackageController : MonoBehaviour
             {
                 waypoint.CollectWaypoint();
 
+                AudioManager.Instance.PlayRandomPackageSentSound();
+
                 if (deliveryEffect != null)
                 {
                     Instantiate(deliveryEffect, transform.position, Quaternion.identity);
