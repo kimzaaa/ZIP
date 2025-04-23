@@ -3517,11 +3517,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 9f99a01c1e35cf94b9d46b6b68f4c928, type: 3}
   - name: 
     clip: {fileID: 8300000, guid: efb1c4bb3fb78994b849a33daafbf3a0, type: 3}
-  packageSentSound:
-  - name: 
-    clip: {fileID: 8300000, guid: 7e43c02c63d9ae140a1a56ad28f53537, type: 3}
-  - name: 
-    clip: {fileID: 8300000, guid: 80624639a72864a42ad628556cf6728f, type: 3}
+  packageSentSound: []
   musicSource: {fileID: 219329047}
   sfxSource: {fileID: 635088273}
 --- !u!4 &1413795071
