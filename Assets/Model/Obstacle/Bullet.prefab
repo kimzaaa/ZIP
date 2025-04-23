@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7158357928730472030}
   - component: {fileID: 369962604326516145}
   - component: {fileID: -867685934210554325}
+  - component: {fileID: 5444225281364690891}
   - component: {fileID: 646815407327661915}
   - component: {fileID: 5353743728774025698}
   m_Layer: 0
@@ -126,6 +127,18 @@ MonoBehaviour:
   damageToPackage: 20
   destroyEffect: {fileID: 8934740475878494008, guid: 37fde02800724574cada26c40850514d, type: 3}
   explosiveShake: {fileID: 11400000, guid: cfb5721468f522e4984b6e517151f6d8, type: 2}
+--- !u!114 &5444225281364690891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5479431527146481249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1124bf3ec6449c14ba79198a40b115ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!54 &646815407327661915
 Rigidbody:
   m_ObjectHideFlags: 0

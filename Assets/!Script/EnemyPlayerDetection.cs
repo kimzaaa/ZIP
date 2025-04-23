@@ -1,7 +1,5 @@
 using UnityEngine;
-using System.Collections;
 using FirstGearGames.SmoothCameraShaker;
-using System.Collections.Generic;
 
 public class EnemyPlayerDetection : MonoBehaviour
 {
@@ -16,18 +14,6 @@ public class EnemyPlayerDetection : MonoBehaviour
 
     private bool isPlayerDetected = false;
     private float shootTimer = 0f;
-    private List<GameObject> bulletPool = new List<GameObject>();
-    private int poolSize = 24;
-
-    void Start()
-    {
-        for (int i = 0; i < poolSize; i++)
-        {
-            GameObject bullet = Instantiate(bulletPrefab);
-            bullet.SetActive(false);
-            bulletPool.Add(bullet);
-        }
-    }
 
     void Update()
     {
@@ -60,70 +46,40 @@ public class EnemyPlayerDetection : MonoBehaviour
 
         for (int i = 0; i < bulletCount; i++)
         {
-            GameObject bullet = GetInactiveBullet();
-            if (bullet != null)
+            float angle = i * angleStep * Mathf.Deg2Rad;
+            Vector3 direction = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)).normalized;
+
+            GameObject bullet = PoolManager.Instance.GetObject(
+                bulletPrefab,
+                bulletSpawnPoint.position,
+                Quaternion.identity
+            );
+
+            Rigidbody rb = bullet.GetComponent<Rigidbody>();
+            if (rb != null)
             {
-                float angle = i * angleStep * Mathf.Deg2Rad;
-                Vector3 direction = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)).normalized;
+                rb.linearVelocity = direction * bulletSpeed;
+            }
+            else
+            {
+                Debug.LogWarning("Bullet prefab is missing Rigidbody component!", bullet);
+            }
 
-                bullet.transform.position = bulletSpawnPoint.position;
-                Rigidbody rb = bullet.GetComponent<Rigidbody>();
-                if (rb != null)
-                {
-                    rb.linearVelocity = direction * bulletSpeed;
-                }
-                else
-                {
-                    Debug.LogWarning("Bullet prefab is missing Rigidbody component!", bullet);
-                }
-                bullet.SetActive(true);
-
-                BulletDespawner despawner = bullet.GetComponent<BulletDespawner>();
-                if (despawner == null)
-                {
-                    despawner = bullet.AddComponent<BulletDespawner>();
-                }
+            BulletDespawner despawner = bullet.GetComponent<BulletDespawner>();
+            if (despawner != null)
+            {
                 despawner.StartDespawn(bulletDespawnTime);
             }
             else
             {
-                Debug.LogWarning("No inactive bullet available in pool!");
+                Debug.LogWarning("Bullet prefab is missing BulletDespawner component!", bullet);
             }
         }
-    }
-
-    private GameObject GetInactiveBullet()
-    {
-        foreach (GameObject bullet in bulletPool)
-        {
-            if (!bullet.activeInHierarchy)
-            {
-                return bullet;
-            }
-        }
-        return null;
     }
 
     void OnDrawGizmos()
     {
         Gizmos.color = isPlayerDetected ? Color.red : Color.green;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
-    }
-}
-
-public class BulletDespawner : MonoBehaviour
-{
-    public void StartDespawn(float despawnTime)
-    {
-        StartCoroutine(DespawnAfterTime(despawnTime));
-    }
-
-    private IEnumerator DespawnAfterTime(float despawnTime)
-    {
-        yield return new WaitForSeconds(despawnTime);
-        if (gameObject != null)
-        {
-            gameObject.SetActive(false);
-        }
     }
 }
