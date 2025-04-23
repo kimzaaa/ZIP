@@ -4,24 +4,25 @@ using System.Collections;
 public class AiGenTrap : MonoBehaviour
 {
     [Header("Player Settings")]
-    public Transform player;               // ตัว Player (ไม่ใช่กล้องแล้ว)
+    public Transform player;
 
     [Header("Trap Settings")]
-    public GameObject pillarPrefab;         // Prefab เสาหิน
-    public Terrain terrain;                 // Terrain
-    public float spawnDistanceMin = 15f;    // ระยะห่างน้อยสุด
-    public float spawnDistanceMax = 25f;    // ระยะห่างมากสุด
+    public GameObject pillarPrefab;
+    public Terrain terrain;
+    public float spawnDistanceMin = 15f;
+    public float spawnDistanceMax = 25f;
 
     [Header("Pillar Movement")]
-    public float pillarRiseSpeed = 2f;          // ความเร็วเสาขึ้น
-    public float pillarHeightPercent = 0.75f;   // เปอร์เซ็นต์ของเสาที่ขึ้นมา
-    public float pillarStartDepth = 3f;         // ลึกลงไปใต้ดินกี่หน่วย
+    public float pillarRiseSpeed = 2f;
+    public float pillarHeightPercent = 0.75f;
+    public float pillarStartDepth = 3f;
 
     [Header("Trap Timing")]
-    public float spawnIntervalEarly = 15f;      // ทุก 15 วิก่อน 5 นาที
-    public float spawnIntervalLate = 10f;       // ทุก 10 วิหลัง 5 นาที
+    public float spawnIntervalEarly = 15f;
+    public float spawnIntervalLate = 10f;
+    public float destroyDelay = 5f;
 
-    private float gameTime = 0f;                // จับเวลารวม
+    private float gameTime = 0f;
 
     void Start()
     {
@@ -40,6 +41,7 @@ public class AiGenTrap : MonoBehaviour
             {
                 GameObject pillar = Instantiate(pillarPrefab, spawnPosition, Quaternion.identity);
                 StartCoroutine(RaisePillar(pillar));
+                StartCoroutine(DestroyPillar(pillar));
             }
 
             gameTime += interval;
@@ -48,21 +50,17 @@ public class AiGenTrap : MonoBehaviour
 
     Vector3 CalculateSpawnPosition()
     {
-        // มองไปข้างหน้า player (ไม่ใช่กล้อง)
         Vector3 forward = player.forward;
         forward.y = 0;
         forward.Normalize();
 
-        // สุ่มระยะห่าง
         float distance = Random.Range(spawnDistanceMin, spawnDistanceMax);
 
-        // สุ่มเบี่ยงมุมซ้าย-ขวาเล็กน้อย
         float angle = Random.Range(-30f, 30f);
         forward = Quaternion.Euler(0, angle, 0) * forward;
 
         Vector3 targetPosition = player.position + forward * distance;
 
-        // วางเสาให้ตรงพื้น Terrain
         if (terrain != null)
         {
             float terrainHeight = terrain.SampleHeight(targetPosition);
@@ -75,14 +73,14 @@ public class AiGenTrap : MonoBehaviour
 
     IEnumerator RaisePillar(GameObject pillar)
     {
-        float targetHeight = 5f; // ความสูงของเสาเต็มๆ
+        float targetHeight = 5f;
         float riseHeight = targetHeight * pillarHeightPercent;
 
-        Vector3 groundPos = pillar.transform.position; // ตำแหน่งบนพื้น
-        Vector3 startPos = groundPos - Vector3.up * pillarStartDepth; // เริ่มลึกลงไป
-        Vector3 endPos = groundPos + Vector3.up * riseHeight; // ขึ้นมาจนถึงจุดที่ต้องการ
+        Vector3 groundPos = pillar.transform.position;
+        Vector3 startPos = groundPos - Vector3.up * pillarStartDepth;
+        Vector3 endPos = groundPos + Vector3.up * riseHeight;
 
-        pillar.transform.position = startPos; // ตั้งต้นใต้ดินก่อน
+        pillar.transform.position = startPos;
 
         float totalRiseDistance = Vector3.Distance(startPos, endPos);
         float duration = totalRiseDistance / pillarRiseSpeed;
@@ -99,7 +97,12 @@ public class AiGenTrap : MonoBehaviour
             yield return null;
         }
 
-        // ล็อคตำแหน่งสุดท้ายให้เป๊ะ
         pillar.transform.position = endPos;
+    }
+
+    IEnumerator DestroyPillar(GameObject pillar)
+    {
+        yield return new WaitForSeconds(destroyDelay);
+        Destroy(pillar);
     }
 }

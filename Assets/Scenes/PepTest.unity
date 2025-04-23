@@ -1715,8 +1715,8 @@ MonoBehaviour:
   crouchSpeedBuildUp: 10
   crouchSnapStrength: 15
   momentumPreservationFactor: 0.8
-  landingShakeData: {fileID: 0}
-  flyingShakeData: {fileID: 0}
+  landingShakeData: {fileID: 11400000, guid: 426fe4dcad19a2344a5585b6fb18728d, type: 2}
+  flyingShakeData: {fileID: 11400000, guid: 9af0c22d62add0545a3513681d33ac79, type: 2}
   isGrounded: 0
 --- !u!54 &1065230043
 Rigidbody:
