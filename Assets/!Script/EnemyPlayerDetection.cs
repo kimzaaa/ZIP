@@ -43,6 +43,8 @@ public class EnemyPlayerDetection : MonoBehaviour
     {
         float angleStep = 360f / bulletCount;
         CameraShakerHandler.Shake(explosiveShake);
+        
+        AudioManager.Instance.PlaySFX("TurretSFX");
 
         for (int i = 0; i < bulletCount; i++)
         {

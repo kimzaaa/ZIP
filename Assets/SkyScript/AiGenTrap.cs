@@ -96,12 +96,23 @@ public class AiGenTrap : MonoBehaviour
 
     GameObject GetPooledPillar(GameObject prefab)
     {
-        if (pillarPools.TryGetValue(prefab, out Queue<GameObject> pool) && pool.Count > 0)
+        if (pillarPools.TryGetValue(prefab, out Queue<GameObject> pool))
         {
-            return pool.Dequeue();
+            if (pool.Count > 0)
+            {
+                return pool.Dequeue();
+            }
+            else
+            {
+                // Optional: Expand pool dynamically
+                GameObject pillar = Instantiate(prefab);
+                pillar.SetActive(false);
+                return pillar;
+            }
         }
         return null;
     }
+
 
     Vector3 CalculateSpawnPosition()
     {

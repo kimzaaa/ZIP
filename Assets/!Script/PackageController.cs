@@ -148,7 +148,7 @@ public class PackageController : MonoBehaviour
             {
                 waypoint.CollectWaypoint();
 
-                // AudioManager.Instance.PlayRandomPackageSentSound();
+                AudioManager.Instance.PlaySFX("PackageSentSFX");
 
                 if (deliveryEffect != null)
                 {
