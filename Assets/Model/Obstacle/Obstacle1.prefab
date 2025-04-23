@@ -285,8 +285,7 @@ MonoBehaviour:
   bulletCount: 32
   bulletSpeed: 75
   shootCooldown: 1
-  bulletDespawnTime: 0.5
-  initialShootDelay: 0
+  bulletDespawnTime: 0.8
   explosiveShake: {fileID: 11400000, guid: 4789ccd0dc2014947a45819ece72a8e0, type: 2}
 --- !u!114 &6631964207413838276
 MonoBehaviour:
@@ -499,7 +498,7 @@ Transform:
   m_GameObject: {fileID: 3395650098812903389}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 9.561, z: -1.63}
+  m_LocalPosition: {x: -0.09, y: 4.174, z: 2.384}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
