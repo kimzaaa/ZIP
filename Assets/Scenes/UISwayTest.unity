@@ -404,7 +404,6 @@ MonoBehaviour:
     NearLimit: 5
     FarLimit: 30
     MaxQualityBoost: 0.2
-  - component: {fileID: 176290006}
 --- !u!1 &364764309
 GameObject:
   m_ObjectHideFlags: 0
