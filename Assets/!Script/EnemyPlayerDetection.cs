@@ -65,18 +65,18 @@ public class EnemyPlayerDetection : MonoBehaviour
             {
                 rb.velocity = direction * bulletSpeed;
             }
+            else
+            {
+                Debug.LogWarning("Bullet prefab is missing Rigidbody component!", bullet);
+            }
 
-            // Start coroutine to despawn bullet
-            StartCoroutine(DespawnBullet(bullet));
-        }
-    }
-
-    private IEnumerator DespawnBullet(GameObject bullet)
-    {
-        yield return new WaitForSeconds(bulletDespawnTime);
-        if (bullet != null)
-        {
-            Destroy(bullet);
+            // Add a component to handle despawning if not already present
+            BulletDespawner despawner = bullet.GetComponent<BulletDespawner>();
+            if (despawner == null)
+            {
+                despawner = bullet.AddComponent<BulletDespawner>();
+            }
+            despawner.StartDespawn(bulletDespawnTime);
         }
     }
 
@@ -85,5 +85,23 @@ public class EnemyPlayerDetection : MonoBehaviour
     {
         Gizmos.color = isPlayerDetected ? Color.red : Color.green;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
+    }
+}
+
+// New MonoBehaviour to handle bullet despawning
+public class BulletDespawner : MonoBehaviour
+{
+    public void StartDespawn(float despawnTime)
+    {
+        StartCoroutine(DespawnAfterTime(despawnTime));
+    }
+
+    private IEnumerator DespawnAfterTime(float despawnTime)
+    {
+        yield return new WaitForSeconds(despawnTime);
+        if (gameObject != null)
+        {
+            Destroy(gameObject);
+        }
     }
 }
