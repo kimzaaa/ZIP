@@ -14,8 +14,20 @@ public class FPSChanger : MonoBehaviour
 
         SetupDropdown();
 
-        fpsDropdown.value = 3;
-        ChangeFPS(fpsDropdown.value);
+        // Initialize dropdown to match current target frame rate
+        int currentFPS = Application.targetFrameRate;
+        int[] fpsValues = { 15, 30, 45, 60, 120 };
+        int dropdownIndex = System.Array.IndexOf(fpsValues, currentFPS);
+
+        // If currentFPS is not in fpsValues, default to 60 FPS (index 3)
+        if (dropdownIndex == -1)
+        {
+            dropdownIndex = 3; // Default to 60 FPS
+            Application.targetFrameRate = fpsValues[dropdownIndex];
+        }
+
+        fpsDropdown.value = dropdownIndex;
+        ChangeFPS(dropdownIndex);
 
         fpsDropdown.onValueChanged.AddListener(delegate { ChangeFPS(fpsDropdown.value); });
     }

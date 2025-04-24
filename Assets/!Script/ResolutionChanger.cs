@@ -1,7 +1,6 @@
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
-using UnityEngine.UI;
 
 public class ResolutionChanger : MonoBehaviour
 {
@@ -65,9 +64,31 @@ public class ResolutionChanger : MonoBehaviour
 
     private void LoadSavedResolution()
     {
-        int savedIndex = PlayerPrefs.GetInt(RESOLUTION_PREF_KEY, 0);
-        resolutionDropdown.value = savedIndex;
-        ApplyResolution(savedIndex);
+        // Get current screen resolution and fullscreen state
+        int currentWidth = Screen.width;
+        int currentHeight = Screen.height;
+        bool currentFullscreen = Screen.fullScreen;
+
+        // Try to find a matching resolution option
+        int matchedIndex = -1;
+        for (int i = 0; i < resolutionOptions.Count; i++)
+        {
+            var option = resolutionOptions[i];
+            if (option.width == currentWidth && option.height == currentHeight && option.isFullscreen == currentFullscreen)
+            {
+                matchedIndex = i;
+                break;
+            }
+        }
+
+        // If no match is found, check PlayerPrefs or default to 1920x1080 Window (index 6)
+        if (matchedIndex == -1)
+        {
+            matchedIndex = PlayerPrefs.GetInt(RESOLUTION_PREF_KEY, 6); // Default to FHD (1920x1080) Window
+        }
+
+        resolutionDropdown.value = matchedIndex;
+        ApplyResolution(matchedIndex);
     }
 
     private void OnResolutionChanged(int index)
@@ -81,5 +102,6 @@ public class ResolutionChanger : MonoBehaviour
     {
         ResolutionOption option = resolutionOptions[index];
         Screen.SetResolution(option.width, option.height, option.isFullscreen);
+        Debug.Log($"Resolution set to: {option.width}x{option.height}, Fullscreen: {option.isFullscreen}");
     }
 }
