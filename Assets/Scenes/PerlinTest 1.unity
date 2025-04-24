@@ -6764,7 +6764,7 @@ MonoBehaviour:
   - name: PackageCollectSFX
     clip: {fileID: 8300000, guid: f331367a9740d9c4fa57eb757bed4501, type: 3}
   - name: PackageSentSFX
-    clip: {fileID: 8300000, guid: 243367fadc0108542b6564e1cc143d78, type: 3}
+    clip: {fileID: 8300000, guid: 32997cb121abc294abdb96bcd613c04b, type: 3}
   - name: TurretSFX
     clip: {fileID: 8300000, guid: 99ef03e19d183a54d8edc257f90784d5, type: 3}
   FootstepSounds:
@@ -6774,7 +6774,9 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 9f99a01c1e35cf94b9d46b6b68f4c928, type: 3}
   - name: 
     clip: {fileID: 8300000, guid: efb1c4bb3fb78994b849a33daafbf3a0, type: 3}
-  packageSentSound: []
+  packageSentSound:
+  - name: 
+    clip: {fileID: 8300000, guid: 32997cb121abc294abdb96bcd613c04b, type: 3}
   musicSource: {fileID: 219329047}
   sfxSource: {fileID: 635088273}
 --- !u!4 &1413795071
