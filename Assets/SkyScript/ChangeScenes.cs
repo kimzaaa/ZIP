@@ -12,6 +12,7 @@ public class ChangeScenes : MonoBehaviour
         {
             ResetScript();
             SceneManager.LoadScene(sceneName);
+            Time.timeScale = 1f;
         }
         else
         {
@@ -34,6 +35,7 @@ public class ChangeScenes : MonoBehaviour
             {
                 ResetScript();
                 SceneManager.LoadScene(currentScene.name);
+                Time.timeScale = 1f;
             }
             else
             {

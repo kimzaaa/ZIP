@@ -8,36 +8,48 @@ public class Uimainclick : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private Image image;
     private RectTransform rectTransform;
     private Vector3 originalPosition;
-    private Vector3 targetOffset = new Vector3(10f, 0f, 0f); // ‡≈◊ËÕπ¢«“
+    private Vector3 targetOffset = new Vector3(10f, 0f, 0f); // ‡∏£‡∏∞‡∏¢‡∏∞‡∏Å‡∏≤‡∏£‡πÄ‡∏Ñ‡∏•‡∏∑‡πà‡∏≠‡∏ô‡∏ó‡∏µ‡πà
 
     private Coroutine moveCoroutine;
 
-    [Header("¢ÈÕ§«“¡§≈‘° (‚™«Ï„π Console)")]
-    public string clickMessage = "§ÿ≥§≈‘°∑’Ë√Ÿª·≈È«!";
+    [Header("‡∏Ç‡πâ‡∏≠‡∏Ñ‡∏ß‡∏≤‡∏°‡πÄ‡∏°‡∏∑‡πà‡∏≠‡∏Ñ‡∏•‡∏¥‡∏Å (‡πÅ‡∏™‡∏î‡∏á‡πÉ‡∏ô Console)")]
+
+    public string clickMessage = "‡∏™‡∏ß‡∏±‡∏™‡∏î‡∏µ ‡∏Ñ‡∏∏‡∏ì‡∏Ñ‡∏•‡∏¥‡∏Å‡∏õ‡∏∏‡πà‡∏°‡∏ô‡∏µ‡πâ!";
 
     void Start()
     {
         image = GetComponent<Image>();
         rectTransform = GetComponent<RectTransform>();
         originalPosition = rectTransform.anchoredPosition;
-        SetAlpha(0.7f); // ‡√‘Ë¡‚ª√Ëß
+        SetAlpha(0.7f); // ‡πÄ‡∏£‡∏¥‡πà‡∏°‡∏ï‡πâ‡∏ô
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        SetAlpha(1f); // ∑÷∫
-        StartMove(originalPosition + targetOffset); // ‡≈◊ËÕπ¢«“
+        SetAlpha(1f); // ‡∏ó‡∏≥‡πÉ‡∏´‡πâ‡∏à‡∏≤‡∏á
+        StartMove(originalPosition + targetOffset); // ‡πÄ‡∏Ñ‡∏•‡∏∑‡πà‡∏≠‡∏ô‡∏ó‡∏µ‡πà‡πÑ‡∏õ‡∏Ç‡πâ‡∏≤‡∏á‡∏´‡∏ô‡πâ‡∏≤
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        SetAlpha(0.7f); // °≈—∫‚ª√Ëß
-        StartMove(originalPosition); // °≈—∫µ”·ÀπËß‡¥‘¡
+        SetAlpha(0.7f); // ‡∏ó‡∏≥‡πÉ‡∏´‡πâ‡πÉ‡∏™
+        StartMove(originalPosition); // ‡∏Å‡∏•‡∏±‡∏ö‡πÑ‡∏õ‡∏ó‡∏µ‡πà‡πÄ‡∏î‡∏¥‡∏°
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log(clickMessage); // · ¥ß¢ÈÕ§«“¡∑’Ëµ—Èß‰«È„π Inspector
+        if (clickMessage == "Exit")
+        {
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
+        }
+        else
+        {
+            Debug.Log(clickMessage); // ‡πÅ‡∏™‡∏î‡∏á‡∏Ç‡πâ‡∏≠‡∏Ñ‡∏ß‡∏≤‡∏°‡∏ó‡∏µ‡πà‡∏Å‡∏≥‡∏´‡∏ô‡∏î‡πÉ‡∏ô Inspector
+        }
     }
 
     private void SetAlpha(float alpha)
