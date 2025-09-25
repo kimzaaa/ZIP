@@ -34,7 +34,7 @@ namespace FireballMovement
                 ResetAll();
             }
 
-            if (_fireball.velocity.x > 1 || _fireball.velocity.x < -1)
+            if (_fireball.linearVelocity.x > 1 || _fireball.linearVelocity.x < -1)
             {
                 _fireballTrails.SetBool(_fireballTrailsActiveString, true);
             }
@@ -47,7 +47,7 @@ namespace FireballMovement
         private void ResetAll()
         {
             _fireballTrails.enabled = false;
-            _fireball.velocity = Vector3.zero;
+            _fireball.linearVelocity = Vector3.zero;
             _fireball.transform.localPosition = _startingPos;
             timer = 0;
         }

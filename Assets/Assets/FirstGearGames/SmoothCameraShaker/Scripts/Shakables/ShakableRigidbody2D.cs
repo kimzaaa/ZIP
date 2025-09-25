@@ -306,7 +306,7 @@ namespace FirstGearGames.SmoothCameraShaker
                 data.SetNextRandomizeTime(Time.time + Random.Range(3f, 7f));
 
             /* If new random multipliers or velocity is zero then randomize multipliers. */
-            if (newRandomize || data.Rigidbody.velocity == Vector2.zero)
+            if (newRandomize || data.Rigidbody.linearVelocity == Vector2.zero)
                 data.SetRandomPositionMultiplier(Floats.RandomlyFlip(data.RandomPositionMultiplier));
             if (newRandomize || data.Rigidbody.angularVelocity == 0f)
                 data.SetRandomRotationMultiplier(Floats.RandomlyFlip(data.RandomRotationMultiplier));
